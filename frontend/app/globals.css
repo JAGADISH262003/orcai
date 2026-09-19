@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  font-feature-settings: "cv01", "ss03";
+}
+
+body {
+  background-color: #08090a;
+  color: #f7f8f8;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.linear-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.linear-card:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.linear-input {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d0d6e0;
+  border-radius: 6px;
+}
+
+.linear-input:focus {
+  outline: none;
+  border-color: #5e6ad2;
+  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2);
+}
+
+select.linear-input {
+  background-color: #191a1b;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #08090a;
+}
+::-webkit-scrollbar-thumb {
+  background: #23252a;
+  border-radius: 3px;
+}

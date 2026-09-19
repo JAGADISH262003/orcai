@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORCAI Ecosystem — Dual-Sided Marketplace & Recruiting OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;510;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            brand: { DEFAULT: '#5e6ad2', hover: '#7170ff', light: '#828fff' },
+            surface: { black: '#08090a', panel: '#0f1011', card: '#191a1b', elevated: '#28282c' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root { font-feature-settings: "cv01", "ss03"; }
+    body { background-color: #08090a; color: #f7f8f8; font-family: 'Inter', sans-serif; }
+    .linear-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; }
+    .linear-card:hover { border-color: rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.03); }
+    .linear-input { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); color: #d0d6e0; border-radius: 6px; }
+    .linear-input:focus { outline: none; border-color: #5e6ad2; box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2); }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #08090a; }
+    ::-webkit-scrollbar-thumb { background: #23252a; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-brand selection:text-white">
+
+  <!-- Header -->
+  <header class="h-14 border-b border-white/[0.08] bg-[#0f1011]/90 backdrop-blur sticky top-0 z-50 flex items-center justify-between px-6">
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+        <div class="w-7 h-7 rounded bg-gradient-to-br from-brand to-indigo-600 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-brand/20">O</div>
+        <span class="font-semibold tracking-tight text-[#f7f8f8] text-base">ORCAI <span class="text-xs px-2 py-0.5 rounded bg-brand/20 text-brand-light font-mono font-medium ml-1">Dual-Sided Marketplace</span></span>
+      </div>
+      <div class="hidden md:flex items-center space-x-2 text-xs text-[#8a8f98] pl-4 border-l border-white/[0.08]">
+        <span>Portal View:</span>
+        <select id="portalViewSelector" onchange="switchPortalView(this.value)" class="bg-[#191a1b] text-[#f7f8f8] px-2.5 py-1 rounded border border-white/[0.08] font-medium text-xs focus:outline-none focus:border-brand">
+          <option value="recruiter" selected>1. Recruiter / Agency Command Center</option>
+          <option value="employer">2. Employer / Client Portal (Contracts)</option>
+          <option value="talent">3. Talent Seeker / Public Bench Marketplace</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex items-center space-x-3">
+      <span class="hidden sm:inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span>Waterfall Active (₹0 Inbound)</span>
+      </span>
+      <button onclick="openModal('launchModal')" class="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition shadow flex items-center space-x-1.5">
+        <span>+ Post Requisition / Job</span>
+      </button>
+      <div class="w-8 h-8 rounded-full bg-[#28282c] border border-white/10 flex items-center justify-center text-xs font-semibold text-[#f7f8f8]">JI</div>
+    </div>
+  </header>
+
+  <!-- App Shell -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-white/[0.08] bg-[#0f1011] hidden lg:flex flex-col justify-between p-4">
+      <div class="space-y-6">
+        <div>
+          <p class="text-[11px] font-mono text-[#62666d] uppercase tracking-wider px-3 mb-2">Core Platform</p>
+          <nav class="space-y-0.5">
+            <a href="#" onclick="showSection('dashboard')" id="nav-dashboard" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#f7f8f8] bg-white/[0.04] transition">
+              <span>Command Center</span>
+            </a>
+            <a href="#" onclick="showSection('pipeline')" id="nav-pipeline" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.02] transition">
+              <span>Matching & Submissions</span>
+            </a>
+            <a href="#" onclick="showSection('hitl')" id="nav-hitl" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.02] transition justify-between">
+              <span>HITL Confidence Gate</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] font-mono font-bold">3</span>
+            </a>
+            <a href="#" onclick="showSection('waterfall')" id="nav-waterfall" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.02] transition">
+              <span>3-Tier Data Waterfall</span>
+            </a>
+          </nav>
+        </div>
+        <div>
+          <p class="text-[11px] font-mono text-[#62666d] uppercase tracking-wider px-3 mb-2">Compliance & Revenue</p>
+          <nav class="space-y-0.5">
+            <a href="#" onclick="showSection('dpdpa')" id="nav-dpdpa" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.02] transition">
+              <span>DPDPA Consent Ledger</span>
+            </a>
+            <a href="#" onclick="showSection('billing')" id="nav-billing" class="flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.02] transition">
+              <span>SaaS Pricing & ROI Simulator</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+      <div class="pt-4 border-t border-white/[0.08]">
+        <div class="linear-card p-3 bg-gradient-to-br from-brand/10 to-transparent">
+          <p class="text-[11px] font-semibold text-[#f7f8f8] mb-1">Dual Marketplace Model</p>
+          <p class="text-[10px] text-[#8a8f98] mb-2">Connecting Employer Contracts directly with Verified Employment Seekers.</p>
+          <button onclick="alert('Dual-Sided Strategy: Agencies monetize contracts while AI orchestrates candidate supply!')" class="w-full py-1.5 px-3 rounded bg-white/[0.08] hover:bg-white/[0.12] text-[11px] font-medium text-white transition text-center">View Blueprint</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 overflow-y-auto bg-[#08090a] p-6 lg:p-8">
+      
+      <!-- SECTION 1: DASHBOARD (Recruiter Command Center) -->
+      <div id="sec-dashboard" class="space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 id="mainTitle" class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">ORCAI Dual-Sided Marketplace</h1>
+                        <p id="mainSubtitle" class="text-xs text-[#8a8f98] mt-1">Connecting Employer Contracts with Verified Employment Seekers — AI-Powered Matchmaking & Pipeline.</p>
+            </div>
+                      <div class="flex items-center space-x-2">
+                        <button onclick="openModal('launchModal')" class="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition shadow flex items-center space-x-1.5">
+                          <span>+ Post Employer Contract</span>
+                        </button>
+                        <select id="portalViewSelector" onchange="switchPortalView(this.value)" class="bg-[#191a1b] text-[#f7f8f8] px-2.5 py-1 rounded border border-white/[0.08] font-medium text-xs focus:outline-none focus:border-brand">
+                          <option value="recruiter" selected>1. Recruiter / Agency Command Center</option>
+                          <option value="employer">2. Employer / Client Portal (Active Contracts)</option>
+                          <option value="talent">3. Talent Seeker / Public Bench Marketplace</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Metric Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div class="linear-card p-4">
+                        <div class="flex justify-between text-xs text-[#8a8f98] mb-2">
+                          <span>Active Employer Requisitions</span>
+                          <span class="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-1.5 py-0.5 rounded">4 new contracts</span>
+                        </div>
+                        <div class="text-2xl font-semibold text-[#f7f8f8]">18</div>
+                        <div class="mt-2 text-[11px] text-[#62666d] flex justify-between">
+                          <span>Avg time-to-submit:</span>
+                          <span class="text-[#d0d6e0] font-mono">14 minutes</span>
+                        </div>
+                      </div>
+                      <div class="linear-card p-4">
+                        <div class="flex justify-between text-xs text-[#8a8f98] mb-2">
+                          <span>Talent Pool Inbound (Supply)</span>
+                          <span class="text-brand-light font-mono text-[10px] bg-brand/10 px-1.5 py-0.5 rounded">Auto-parsed</span>
+                        </div>
+                        <div class="text-2xl font-semibold text-[#f7f8f8]">142</div>
+                        <div class="mt-2 text-[11px] text-[#62666d] flex justify-between">
+                          <span>Tier-A Matches (Job-Seeker ↔ Contract):</span>
+                          <span class="text-emerald-400 font-mono">38 candidates</span>
+                        </div>
+                      </div>
+                      <div class="linear-card p-4">
+                        <div class="flex justify-between text-xs text-[#8a8f98] mb-2">
+                          <span>HITL Confidence Queue</span>
+                          <span class="text-amber-400 font-mono text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded">Review needed</span>
+                        </div>
+                        <div class="text-2xl font-semibold text-amber-400">3</div>
+                        <div class="mt-2 text-[11px] text-[#62666d] flex justify-between">
+                          <span>AI Match Accuracy:</span>
+                          <span class="text-[#d0d6e0] font-mono">96.4%</span>
+                        </div>
+                      </div>
+                      <div class="linear-card p-4">
+                        <div class="flex justify-between text-xs text-[#8a8f98] mb-2">
+                          <span>Monthly Agency Profit</span>
+                          <span class="text-purple-400 font-mono text-[10px] bg-purple-500/10 px-1.5 py-0.5 rounded">High Margin</span>
+                        </div>
+                        <div class="text-2xl font-semibold text-emerald-400">₹1,85,000</div>
+                        <div class="mt-2 text-[11px] text-[#62666d] flex justify-between">
+                          <span>Infra Cost Ratio:</span>
+                          <span class="text-[#d0d6e0] font-mono">7.5% of Revenue</span>
+                        </div>
+                      </div>
+
+        <!-- Table & Waterfall Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 linear-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-semibold text-[#f7f8f8]" id="tableHeading">Active Contracts & Candidate Matches</h2>
+              <button onclick="showSection('pipeline')" class="text-xs text-brand-light hover:underline">View Board →</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead>
+                  <tr class="border-b border-white/[0.08] text-[#8a8f98] font-mono text-[11px]">
+                    <th class="py-2.5 px-3">Candidate / Job Seeker</th>
+                    <th class="py-2.5 px-3">Client Contract</th>
+                    <th class="py-2.5 px-3">Rate / CTC</th>
+                    <th class="py-2.5 px-3">AI Score</th>
+                    <th class="py-2.5 px-3">Stage</th>
+                    <th class="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/[0.04] text-[#d0d6e0]">
+                  <tr class="hover:bg-white/[0.02]">
+                    <td class="py-3 px-3 font-medium text-[#f7f8f8]">
+                      <div>Kiran Kumar (Job Seeker)</div>
+                      <div class="text-[10px] text-[#8a8f98]">Java Architect • H1B</div>
+                    </td>
+                    <td class="py-3 px-3 text-[#d0d6e0]">Wells Fargo (Direct Contract)</td>
+                    <td class="py-3 px-3 font-mono text-[#f7f8f8]">$85 / $60</td>
+                    <td class="py-3 px-3"><span class="text-emerald-400 font-mono font-bold">94%</span> <span class="text-[10px] text-emerald-400">Tier A</span></td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px]">RTR Signed</span></td>
+                    <td class="py-3 px-3 text-right">
+                      <button onclick="inspectCandidate('Kiran Kumar', 'Java Fullstack Architect', '94%', '$85 / $60')" class="px-2.5 py-1 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[11px] font-medium transition">Inspect</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-white/[0.02]">
+                    <td class="py-3 px-3 font-medium text-[#f7f8f8]">
+                      <div>Priya Sharma (Job Seeker)</div>
+                      <div class="text-[10px] text-[#8a8f98]">Data Engineer • OPT</div>
+                    </td>
+                    <td class="py-3 px-3 text-[#d0d6e0]">JPMorgan Chase (Vendor MSP)</td>
+                    <td class="py-3 px-3 font-mono text-[#f7f8f8]">$90 / $65</td>
+                    <td class="py-3 px-3"><span class="text-brand-light font-mono font-bold">88%</span> <span class="text-[10px] text-brand-light">Tier A</span></td>
+                    <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px]">Submitted</span></td>
+                    <td class="py-3 px-3 text-right">
+                      <button onclick="inspectCandidate('Priya Sharma', 'Senior Data Engineer', '88%', '$90 / $65')" class="px-2.5 py-1 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[11px] font-medium transition">Inspect</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Waterfall Summary -->
+          <div class="linear-card p-5 space-y-4">
+            <h2 class="text-sm font-semibold text-[#f7f8f8]">3-Tier Waterfall Sourcing</h2>
+            <div class="space-y-3 text-xs">
+              <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06]">
+                <div class="flex justify-between font-medium text-[#f7f8f8] mb-1">
+                  <span>Tier 1: Free Inbound</span>
+                  <span class="text-emerald-400 font-mono">₹0 / mo</span>
+                </div>
+                <p class="text-[11px] text-[#8a8f98]">Indeed, Telegram Bot, WhatsApp Cloud API.</p>
+                <div class="mt-2 w-full bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-emerald-400 h-full w-[80%]"></div>
+                </div>
+              </div>
+              <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06]">
+                <div class="flex justify-between font-medium text-[#f7f8f8] mb-1">
+                  <span>Tier 2: Consultancy DB</span>
+                  <span class="text-emerald-400 font-mono">₹0 marginal</span>
+                </div>
+                <p class="text-[11px] text-[#8a8f98]">Bulk CSV + ZIP upload with DPDPA Affidavit.</p>
+                <div class="mt-2 w-full bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-blue-400 h-full w-[45%]"></div>
+                </div>
+              </div>
+              <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06]">
+                <div class="flex justify-between font-medium text-[#f7f8f8] mb-1">
+                  <span>Tier 3: Enrichment APIs</span>
+                  <span class="text-amber-400 font-mono">₹1,200 cap</span>
+                </div>
+                <p class="text-[11px] text-[#8a8f98]">Apollo.io / PDL triggered ONLY for Tier-A matches.</p>
+                <div class="mt-2 w-full bg-white/[0.06] h-1.5 rounded-full overflow-hidden">
+                  <div class="bg-amber-400 h-full w-[20%]"></div>
+                </div>
+              </div>
+            </div>
+            <button onclick="openModal('importModal')" class="w-full py-2 bg-brand/20 hover:bg-brand/30 text-brand-light text-xs font-medium rounded transition">Open Ingestion Wizard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: PIPELINE BOARD -->
+      <div id="sec-pipeline" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">Employer Contracts & Talent Matching Pipeline</h1>
+            <p class="text-xs text-[#8a8f98] mt-1">Connecting job seekers to active company contracts in real time.</p>
+          </div>
+          <button onclick="alert('Hotlist Excel generated successfully!')" class="linear-card px-3 py-1.5 text-xs font-medium text-[#d0d6e0] hover:text-white flex items-center space-x-1">
+            <span>Export Hotlist Excel</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="linear-card p-4 space-y-3 bg-[#0f1011]">
+            <div class="flex justify-between border-b border-white/[0.08] pb-2 text-xs font-semibold">
+              <span>1. Seeker Applied / Sourced</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">14</span>
+            </div>
+            <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-1 cursor-pointer hover:border-brand transition">
+              <div class="flex justify-between text-xs font-semibold text-[#f7f8f8]"><span>Rahul Verma (Seeker)</span><span class="text-emerald-400 font-mono text-[11px]">91%</span></div>
+              <p class="text-[11px] text-[#8a8f98]">AWS DevOps Lead • H1B</p>
+            </div>
+          </div>
+          <div class="linear-card p-4 space-y-3 bg-[#0f1011]">
+            <div class="flex justify-between border-b border-white/[0.08] pb-2 text-xs font-semibold">
+              <span>2. Submitted to Employer</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">8</span>
+            </div>
+            <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-1 cursor-pointer hover:border-brand transition">
+              <div class="flex justify-between text-xs font-semibold text-[#f7f8f8]"><span>Priya Sharma (Seeker)</span><span class="text-brand-light font-mono text-[11px]">88%</span></div>
+              <p class="text-[11px] text-[#8a8f98]">Data Engineer • OPT</p>
+            </div>
+          </div>
+          <div class="linear-card p-4 space-y-3 bg-[#0f1011]">
+            <div class="flex justify-between border-b border-white/[0.08] pb-2 text-xs font-semibold">
+              <span>3. RTR & Contract Signed</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">5</span>
+            </div>
+            <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-1 cursor-pointer hover:border-brand transition">
+              <div class="flex justify-between text-xs font-semibold text-[#f7f8f8]"><span>Kiran Kumar (Seeker)</span><span class="text-emerald-400 font-mono text-[11px]">94%</span></div>
+              <p class="text-[11px] text-[#8a8f98]">Java Architect • H1B</p>
+            </div>
+          </div>
+          <div class="linear-card p-4 space-y-3 bg-[#0f1011]">
+            <div class="flex justify-between border-b border-white/[0.08] pb-2 text-xs font-semibold">
+              <span>4. Placed on Contract</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">2</span>
+            </div>
+            <div class="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-1">
+              <div class="flex justify-between text-xs font-semibold text-[#f7f8f8]"><span>Ananya Reddy (Seeker)</span><span class="text-purple-400 font-mono text-[11px]">Active</span></div>
+              <p class="text-[11px] text-[#8a8f98]">React Native • Wells Fargo Contract</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: HITL QUEUE -->
+      <div id="sec-hitl" class="space-y-6 hidden">
+        <div>
+          <h1 class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">Human-in-the-Loop (HITL) Confidence Gate</h1>
+          <p class="text-xs text-[#8a8f98] mt-1">Review uncertain AI match scores between job seekers and employer contracts.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div class="linear-card p-5 space-y-4 border-l-4 border-amber-500">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-amber-500/15 flex items-center justify-center font-bold text-amber-400">VR</div>
+                <div>
+                  <h3 class="text-sm font-semibold text-[#f7f8f8]">Venkat Rao (Job Seeker)</h3>
+                  <p class="text-xs text-[#8a8f98]">Contract: JPMorgan Cloud Migration • GC EAD</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded bg-amber-500/10 text-amber-400 text-xs font-mono font-bold">AI Score: 76% (Tier B)</span>
+            </div>
+            <div class="p-3 rounded bg-black/40 border border-white/[0.06] text-xs space-y-1">
+              <p class="font-semibold text-amber-300">AI Uncertainty Rationale:</p>
+              <p class="text-[#d0d6e0]">"Seeker has 7 yrs AWS experience, but 2-year employment gap in resume. Verify freelance client history before employer submission."</p>
+            </div>
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-white/[0.06]">
+              <input type="text" placeholder="Add recruiter review rationale..." class="linear-input text-xs px-3 py-1.5 w-full sm:w-96">
+              <div class="flex space-x-2 w-full sm:w-auto">
+                <button onclick="this.closest('.linear-card').remove()" class="px-4 py-1.5 rounded bg-red-500/10 text-red-400 text-xs font-medium transition">Reject Seeker</button>
+                <button onclick="this.closest('.linear-card').remove(); alert('Seeker approved for employer contract submission!')" class="px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition">Approve Seeker</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: WATERFALL -->
+      <div id="sec-waterfall" class="space-y-6 hidden">
+        <div>
+          <h1 class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">3-Tier Candidate Data Waterfall Architecture</h1>
+          <p class="text-xs text-[#8a8f98] mt-1">Guarantees near-zero infrastructure cost ($0 at startup scale).</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="linear-card p-5 space-y-4 border-t-4 border-emerald-400">
+            <span class="text-xs font-mono uppercase text-emerald-400 font-bold">Tier 1: Free Inbound (₹0)</span>
+            <h3 class="text-base font-semibold text-[#f7f8f8]">Indeed, WhatsApp, Telegram, GitHub</h3>
+            <p class="text-xs text-[#8a8f98]">Covers seeker applications with zero API spend.</p>
+          </div>
+          <div class="linear-card p-5 space-y-4 border-t-4 border-blue-400">
+            <span class="text-xs font-mono uppercase text-blue-400 font-bold">Tier 2: Consultancy DB (₹0 marginal)</span>
+            <h3 class="text-base font-semibold text-[#f7f8f8]">Bulk CSV/Excel + ZIP Ingestion</h3>
+            <p class="text-xs text-[#8a8f98]">Converts seeker databases into searchable talent pools with DPDPA Affidavit.</p>
+          </div>
+          <div class="linear-card p-5 space-y-4 border-t-4 border-amber-400">
+            <span class="text-xs font-mono uppercase text-amber-400 font-bold">Tier 3: Budget Enrichment (Capped)</span>
+            <h3 class="text-base font-semibold text-[#f7f8f8]">Apollo.io / PDL (Tier-A Only)</h3>
+            <p class="text-xs text-[#8a8f98]">Enriches verified Tier-A job seekers to keep monthly spend under ₹4,000.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: DPDPA -->
+      <div id="sec-dpdpa" class="space-y-6 hidden">
+        <div>
+          <h1 class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">DPDPA Consent Ledger & Privacy Compliance</h1>
+          <p class="text-xs text-[#8a8f98] mt-1">Automated consent logging and right-to-erase execution for employment seekers.</p>
+        </div>
+        <div class="linear-card p-6 space-y-4">
+          <h3 class="text-sm font-semibold text-[#f7f8f8]">Active Seeker Consent Registry</h3>
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-white/[0.08] text-[#8a8f98] font-mono text-[11px]">
+                <th class="py-2.5 px-3">Job Seeker</th>
+                <th class="py-2.5 px-3">Consent Basis</th>
+                <th class="py-2.5 px-3">Channel</th>
+                <th class="py-2.5 px-3">Erasure Status</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/[0.04] text-[#d0d6e0]">
+              <tr>
+                <td class="py-3 px-3 font-medium text-[#f7f8f8]">Kiran Kumar (Seeker)</td>
+                <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px]">explicit_opt_in</span></td>
+                <td class="py-3 px-3">WhatsApp Cloud API</td>
+                <td class="py-3 px-3 text-emerald-400">Active (Retain 30d)</td>
+                <td class="py-3 px-3 text-right"><button onclick="alert('Seeker data record erased successfully per DPDPA S.7.')" class="px-2 py-1 rounded bg-red-500/10 text-red-400 text-[10px]">Erase Data</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 6: BILLING -->
+      <div id="sec-billing" class="space-y-6 hidden">
+        <div>
+          <h1 class="text-2xl font-semibold text-[#f7f8f8] tracking-tight">SaaS Pricing Architecture & ROI Simulator</h1>
+          <p class="text-xs text-[#8a8f98] mt-1">Affordable subscription tiers for agencies balancing employer contracts and seeker supply.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="linear-card p-6 space-y-4">
+            <h3 class="text-lg font-bold text-[#f7f8f8]">Starter</h3>
+            <div class="text-2xl font-bold text-white">₹4,999 <span class="text-xs text-[#8a8f98] font-normal">/ mo</span></div>
+            <p class="text-xs text-[#8a8f98]">1–3 recruiters, 3 active employer contracts, 200 seekers/mo.</p>
+            <button onclick="alert('Starter plan selected!')" class="w-full py-2 bg-white/[0.08] text-white text-xs font-medium rounded">Select Plan</button>
+          </div>
+          <div class="linear-card p-6 space-y-4 border-brand bg-gradient-to-b from-brand/10 to-transparent">
+            <h3 class="text-lg font-bold text-[#f7f8f8]">Growth</h3>
+            <div class="text-2xl font-bold text-white">₹14,999 <span class="text-xs text-[#8a8f98] font-normal">/ mo</span></div>
+            <p class="text-xs text-[#8a8f98]">4–15 recruiters, 15 active contracts, WhatsApp + Voice screener.</p>
+            <button onclick="alert('Growth plan selected!')" class="w-full py-2 bg-brand text-white text-xs font-medium rounded shadow">Select Plan</button>
+          </div>
+          <div class="linear-card p-6 space-y-4">
+            <h3 class="text-lg font-bold text-[#f7f8f8]">Scale</h3>
+            <div class="text-2xl font-bold text-white">₹34,999 <span class="text-xs text-[#8a8f98] font-normal">/ mo</span></div>
+            <p class="text-xs text-[#8a8f98]">16–50 recruiters, RPO white-label, ATS bridge.</p>
+            <button onclick="alert('Scale plan selected!')" class="w-full py-2 bg-white/[0.08] text-white text-xs font-medium rounded">Select Plan</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MODAL: LAUNCH JOB -->
+  <div id="launchModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="linear-card bg-[#0f1011] w-full max-w-xl p-6 space-y-4 border border-white/10 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="text-base font-semibold text-[#f7f8f8]">Post Employer Contract / Requisition (AI Extractor)</h3>
+        <button onclick="closeModal('launchModal')" class="text-[#8a8f98]">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <textarea rows="5" class="linear-input w-full p-3 font-mono text-xs" placeholder="Paste employer contract / client requirement here...">Client: Wells Fargo. Role: Senior Java Fullstack Engineer. Requirements: Spring Boot, Angular, AWS. 8+ yrs exp. Rate: $85/hr bill rate. Immediate start.</textarea>
+      </div>
+      <div class="flex justify-end space-x-2 pt-3 border-t border-white/[0.08]">
+        <button onclick="closeModal('launchModal')" class="px-4 py-1.5 rounded bg-white/[0.08] text-white text-xs">Cancel</button>
+        <button onclick="closeModal('launchModal'); alert('Employer contract posted! AI matching engine active against seeker talent pool.')" class="px-4 py-1.5 rounded bg-brand text-white text-xs">Publish Contract & Match Seekers</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BULK IMPORT -->
+  <div id="importModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="linear-card bg-[#0f1011] w-full max-w-xl p-6 space-y-4 border border-white/10 shadow-2xl">
+      <div class="flex justify-between items-center">
+        <h3 class="text-base font-semibold text-[#f7f8f8]">Tier 2 Job Seeker DB Bulk Ingestion Wizard</h3>
+        <button onclick="closeModal('importModal')" class="text-[#8a8f98]">✕</button>
+      </div>
+      <div class="p-4 rounded bg-white/[0.02] border border-dashed border-white/20 text-center space-y-2">
+        <p class="font-medium text-[#f7f8f8] text-xs">Drag & drop CSV/Excel database + ZIP folder of job seeker resumes</p>
+      </div>
+      <div class="flex justify-end space-x-2 pt-3 border-t border-white/[0.08]">
+        <button onclick="closeModal('importModal')" class="px-4 py-1.5 rounded bg-white/[0.08] text-white text-xs">Cancel</button>
+        <button onclick="closeModal('importModal'); alert('Bulk import & deduplication completed! 1,450 job seekers indexed.')" class="px-4 py-1.5 rounded bg-blue-600 text-white text-xs">Import & Sign DPDPA Affidavit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CANDIDATE INSPECT -->
+  <div id="inspectModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-end">
+    <div class="linear-card bg-[#0f1011] w-full max-w-lg h-full p-6 space-y-6 border-l border-white/10 overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-white/[0.08] pb-4">
+        <div>
+          <h3 id="inspName" class="text-base font-semibold text-[#f7f8f8]">Kiran Kumar</h3>
+          <p id="inspRole" class="text-xs text-[#8a8f98]">Employment Seeker — Java Architect</p>
+        </div>
+        <button onclick="closeModal('inspectModal')" class="text-[#8a8f98]">✕</button>
+      </div>
+      <div class="space-y-4 text-xs">
+        <div class="flex justify-between p-3 rounded bg-white/[0.02] border border-white/[0.06]">
+          <span>AI Match vs Employer Contract:</span>
+          <span id="inspScore" class="text-emerald-400 font-mono font-bold text-sm">94% (Tier A Match)</span>
+        </div>
+        <div class="flex justify-between p-3 rounded bg-white/[0.02] border border-white/[0.06]">
+          <span>Contract Rates:</span>
+          <span id="inspRate" class="text-[#f7f8f8] font-mono font-bold">$85 / $60</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button onclick="alert('WhatsApp screening message dispatched to job seeker!')" class="py-2 px-3 rounded bg-emerald-600/20 text-emerald-400 font-medium text-center">💬 Seeker WhatsApp</button>
+          <button onclick="alert('RTR & Contract PDF generated and sent for signature!')" class="py-2 px-3 rounded bg-brand/20 text-brand-light font-medium text-center">📄 Generate RTR PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Controller -->
+  <script>
+    function showSection(secId) {
+      ['dashboard', 'pipeline', 'hitl', 'waterfall', 'dpdpa', 'billing'].forEach(s => {
+        document.getElementById('sec-' + s).classList.add('hidden');
+        const nav = document.getElementById('nav-' + s);
+        if (nav) nav.classList.remove('bg-white/[0.04]', 'text-[#f7f8f8]');
+        if (nav) nav.classList.add('text-[#8a8f98]');
+      });
+      document.getElementById('sec-' + secId).classList.remove('hidden');
+      const activeNav = document.getElementById('nav-' + secId);
+      if (activeNav) {
+        activeNav.classList.add('bg-white/[0.04]', 'text-[#f7f8f8]');
+        activeNav.classList.remove('text-[#8a8f98]');
+      }
+    }
+
+    function switchPortalView(viewType) {
+      if (viewType === 'employer') {
+        alert('Switched to Employer / Client Portal View: Clients view their active contracts, shortlisted seekers, and SLA scorecards.');
+      } else if (viewType === 'talent') {
+        alert('Switched to Talent Seeker / Public Bench Marketplace View: Job seekers browse live bench opportunities and submit profiles.');
+      } else {
+        alert('Switched to Recruiter & Agency Command Center.');
+      }
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function inspectCandidate(name, role, score, rate) {
+      document.getElementById('inspName').innerText = name + ' (Job Seeker)';
+      document.getElementById('inspRole').innerText = role;
+      document.getElementById('inspScore').innerText = score + ' (Tier A Match)';
+      document.getElementById('inspRate').innerText = rate;
+      openModal('inspectModal');
+    }
+  </script>
+</body>
+</html>
