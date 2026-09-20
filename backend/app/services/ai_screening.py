@@ -185,7 +185,9 @@ def compute_skills_gap_analysis(
     return {
         "matched_skills": gap["matched"],
         "missing_skills": gap["missing"],
-        "extra_skills": gap["extra"],
+        "extra_skills": sorted(
+            set(normalize_skills(candidate_skills)) - set(normalize_skills(contract_skills))
+        ),
         "coverage_percentage": round(coverage_pct, 1),
         "skill_severity": severity,
         "recommendation": (

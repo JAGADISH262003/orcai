@@ -98,10 +98,11 @@ def scrape_google_jobs(
     start = 1
     while len(results) < max_results and start <= 100:
         q = f"{query} job" + (f" in {location}" if location else "")
+        num = min(10, max_results - len(results))
         url = (
             f"https://www.googleapis.com/customsearch/v1"
             f"?key={api_key}&cx={cx}&q={quote_plus(q)}"
-            f"&start={start}&num=min(10, {max_results - len(results)})"
+            f"&start={start}&num={num}"
         )
         try:
             resp = httpx.get(url, timeout=15)

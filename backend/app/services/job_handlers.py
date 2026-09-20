@@ -188,6 +188,70 @@ def inbound_ingest_job(db: Session, job: Job) -> dict:
     }
 
 
+@register_handler("campaign.send")
+def campaign_send_job(db: Session, job: Job) -> dict:
+    p = job.params
+    campaign_id = int(p["campaign_id"])
+    from app.models.campaign import Campaign, CampaignRecipient
+    from app.services.email_delivery import send_email
+    from app.services.messaging import send_telegram_message, send_whatsapp_message
+    from app.services.sms import send_sms
+
+    campaign = db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise ValueError("campaign not found")
+
+    queued = (
+        db.query(CampaignRecipient)
+        .filter(
+            CampaignRecipient.campaign_id == campaign_id,
+            CampaignRecipient.status == "queued",
+        )
+        .all()
+    )
+
+    sent = 0
+    for r in queued:
+        seeker = db.get(Seeker, r.seeker_id)
+        if seeker is None:
+            r.status = "bounced"
+            continue
+
+        subject = campaign.template_subject or campaign.name or "Message from ORCAI"
+        body = campaign.template_body or ""
+
+        # Personalize template
+        name = seeker.name or "Candidate"
+        body = body.replace("{name}", name).replace("{company}", "").replace("{role}", "")
+        subject = subject.replace("{name}", name)
+
+        ok = False
+        if campaign.channel == "email" and seeker.email:
+            ok = send_email(to=seeker.email, subject=subject, body_html=f"<p>{body}</p>")
+        elif campaign.channel == "sms" and seeker.phone:
+            ok = send_sms(to=seeker.phone, body=body)
+        elif campaign.channel == "whatsapp" and seeker.phone:
+            result = send_whatsapp_message(to_phone=seeker.phone, text=body)
+            ok = result.get("ok", False)
+        elif campaign.channel == "telegram" and seeker.phone:
+            result = send_telegram_message(chat_id=seeker.phone, text=body)
+            ok = result.get("ok", False)
+
+        if ok:
+            r.status = "sent"
+            r.sent_at = datetime.now(UTC)
+            campaign.sent_count += 1
+            sent += 1
+        else:
+            r.status = "bounced"
+
+    if not queued:
+        campaign.status = "completed"
+
+    db.commit()
+    return {"campaign_id": campaign_id, "sent": sent, "total": len(queued)}
+
+
 @register_handler("scrape.jobs")
 def scrape_jobs_job(db: Session, job: Job) -> dict:
     p = job.params

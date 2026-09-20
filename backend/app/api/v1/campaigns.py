@@ -19,6 +19,7 @@ from app.schemas.campaign import (
     CampaignUpdateIn,
 )
 from app.services.audit import audit
+from app.services.jobs import submit_job
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
 
@@ -154,6 +155,11 @@ def start_campaign(
           meta={"target_count": c.target_count})
     db.commit()
     db.refresh(c)
+
+    # Dispatch messages in background
+    submit_job(db, agency_id=agency.id, type_="campaign.send",
+               params={"campaign_id": campaign_id})
+
     return _campaign_to_out(c)
 
 

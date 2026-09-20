@@ -1,3 +1,4 @@
+import secrets
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -65,7 +66,17 @@ def reset_team_password(user_id: int, user: CurrentUser, db: DbDep) -> dict[str,
     target = db.get(User, user_id)
     if not target or target.agency_id != user.agency_id:
         raise HTTPException(404, "User not found")
-    temp_password = "ChangeMe123!"
+    temp_password = secrets.token_urlsafe(16)
     target.hashed_password = hash_password(temp_password)
     db.commit()
+
+    # Send email with new temp password
+    from app.services.email_delivery import send_invite_email
+    send_invite_email(
+        to_email=target.email,
+        agency_name="ORCAI",
+        role=target.role,
+        temp_password=temp_password,
+    )
+
     return {"temp_password": temp_password}

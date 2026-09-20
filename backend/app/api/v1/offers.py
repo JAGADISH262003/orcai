@@ -216,9 +216,36 @@ def send_offer(offer_id: int, db: DbDep, agency: CurrentAgency,
         raise HTTPException(status_code=404, detail="Offer not found")
     if o.status != "approved":
         raise HTTPException(status_code=400, detail="Only approved offers can be sent")
+
+    # Generate offer letter and send via email
+    seeker = o.seeker
+    contract = o.contract
+    client = contract.client if contract else None
+    from app.services.artifacts import generate_offer_letter
+    salary_str = f"{o.offered_currency} {o.offered_salary:,.0f}/year" if o.offered_salary else "TBD"
+    letter = generate_offer_letter(
+        candidate_name=seeker.name if seeker else "Candidate",
+        position_title=contract.title if contract else "Position",
+        company_name=client.name if client else "Company",
+        start_date=o.start_date or "TBD",
+        salary=salary_str,
+        location=contract.location if contract else "TBD",
+        is_remote=contract.is_remote if contract else False,
+    )
+    from app.services.email_delivery import send_email
+    email_ok = False
+    if seeker and seeker.email:
+        email_ok = send_email(
+            to=seeker.email,
+            subject=f"Offer Letter — {contract.title if contract else 'Position'} at {client.name if client else 'Company'}",
+            body_html=letter.get("html", ""),
+            body_text=letter.get("text", ""),
+        )
+
     o.status = "sent"
     o.sent_at = datetime.now(UTC)
-    audit(db, agency_id=agency.id, user_id=user.id, action="offer.send", entity_type="offer", entity_id=o.id)
+    audit(db, agency_id=agency.id, user_id=user.id, action="offer.send", entity_type="offer", entity_id=o.id,
+          meta={"email_sent": email_ok})
     db.commit()
     db.refresh(o)
     return offer_out(o)

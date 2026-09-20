@@ -1,7 +1,8 @@
 from datetime import UTC, date, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel
 from sqlalchemy import func
 
 from app.api.deps import CurrentAgency, DbDep, require_permission
@@ -109,6 +110,119 @@ def select_tier(tier: str, db: DbDep, agency: CurrentAgency, user: RequireBillin
         status=sub.status,
         seats=sub.seats,
     )
+
+
+class CheckoutIn(BaseModel):
+    tier: str
+    success_url: str | None = None
+    cancel_url: str | None = None
+
+
+@router.post("/checkout/stripe")
+def stripe_checkout(data: CheckoutIn, db: DbDep, agency: CurrentAgency, user: RequireBillingWrite):
+    from app.services.billing import stripe_create_checkout
+
+    plan = next((p for p in PLANS if p.slug == data.tier), None)
+    if plan is None:
+        raise HTTPException(status_code=400, detail="Unknown tier")
+
+    result = stripe_create_checkout(
+        agency_id=agency.id,
+        price_cents=plan.price_per_month,
+        plan_name=plan.name,
+        email=user.email,
+        name=user.name or user.email,
+        success_url=data.success_url or f"{agency.id}/billing?success=1",
+        cancel_url=data.cancel_url or f"{agency.id}/billing?cancelled=1",
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("error", "checkout_failed"))
+    return result
+
+
+class RazorpayCheckoutIn(BaseModel):
+    tier: str
+
+
+@router.post("/checkout/razorpay")
+def razorpay_checkout(data: RazorpayCheckoutIn, db: DbDep, agency: CurrentAgency, user: RequireBillingWrite):
+    from app.services.billing import razorpay_create_subscription
+
+    plan = next((p for p in PLANS if p.slug == data.tier), None)
+    if plan is None:
+        raise HTTPException(status_code=400, detail="Unknown tier")
+
+    result = razorpay_create_subscription(
+        agency_id=agency.id,
+        plan_id=data.tier,
+        email=user.email,
+        name=user.name or user.email,
+    )
+    if not result.get("ok"):
+        raise HTTPException(status_code=502, detail=result.get("error", "subscription_failed"))
+    return result
+
+
+class WebhookStripeIn(BaseModel):
+    id: str
+    type: str
+    data: dict
+
+
+@router.post("/webhook/stripe")
+async def stripe_webhook(request: Request, db: DbDep):
+    body = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+    from app.services.billing import stripe_verify_webhook
+    event = stripe_verify_webhook(body, signature)
+    if event is None:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    event_type = event.get("type", "")
+    if event_type == "checkout.session.completed":
+        agency_id = event.get("data", {}).get("metadata", {}).get("agency_id")
+        if agency_id:
+            sub = (
+                db.query(Subscription)
+                .filter(Subscription.agency_id == int(agency_id))
+                .order_by(Subscription.created_at.desc())
+                .first()
+            )
+            if sub:
+                sub.status = "active"
+                db.commit()
+    return {"ok": True}
+
+
+class WebhookRazorpayIn(BaseModel):
+    payload: dict
+
+
+@router.post("/webhook/razorpay")
+async def razorpay_webhook(request: Request, db: DbDep):
+    body = await request.body()
+    signature = request.headers.get("x-razorpay-signature", "")
+    from app.services.billing import razorpay_verify_webhook
+    event = razorpay_verify_webhook(body, signature)
+    if event is None:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    event_type = event.get("event", "")
+    if "subscription" in event_type and "activated" in event_type:
+        payload_entity = event.get("payload", {}).get("subscription", {}).get("entity", {})
+        notes = payload_entity.get("notes", {})
+        agency_id = notes.get("agency_id")
+        if agency_id:
+            sub = (
+                db.query(Subscription)
+                .filter(Subscription.agency_id == int(agency_id))
+                .order_by(Subscription.created_at.desc())
+                .first()
+            )
+            if sub:
+                sub.status = "active"
+                db.commit()
+    return {"ok": True}
 
 
 @router.get("/dashboard", response_model=DashboardOut)

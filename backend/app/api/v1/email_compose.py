@@ -106,12 +106,27 @@ def list_templates() -> list[dict[str, Any]]:
     return EMAIL_TEMPLATES
 
 
+def _render_template(name: str, variables: dict[str, str]) -> dict[str, str]:
+    from app.services.email_delivery import _INVITE_HTML, _NOTIFICATION_HTML, _RESET_HTML
+    templates_html = {
+        "invite": _INVITE_HTML,
+        "password_reset": _RESET_HTML,
+        "notification": _NOTIFICATION_HTML,
+        "interview_scheduled": _NOTIFICATION_HTML,
+        "offer_letter": _NOTIFICATION_HTML,
+        "follow_up": _NOTIFICATION_HTML,
+    }
+    html = templates_html.get(name)
+    if not html:
+        html = "<p>Template not found</p>"
+    for key, val in variables.items():
+        html = html.replace("{" + key + "}", val)
+    return {"subject": f"[Preview] {name}", "body": html}
+
+
 @router.post("/preview")
 def preview_email(data: EmailPreviewIn) -> dict[str, str]:
     template = next((t for t in EMAIL_TEMPLATES if t["name"] == data.template_name), None)
     if not template:
         raise HTTPException(404, "Template not found")
-    placeholders = {v: f"{{{{{v}}}}}" for v in template["variables"]}
-    preview_vars = {**placeholders, **data.variables}
-    body = f"Template: {data.template_name}\nVariables: {preview_vars}"
-    return {"subject": f"[Preview] {data.template_name}", "body": body}
+    return _render_template(data.template_name, data.variables)
