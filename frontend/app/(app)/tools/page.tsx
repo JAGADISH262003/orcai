@@ -40,7 +40,7 @@ export default function ToolsPage() {
       if (type === "mis") data = await api.misReport();
       else if (type === "hotlist") data = await api.hotlist();
       else if (type === "rtr") data = await api.rtr(Number(artifactMatchId));
-      else if (type === "offer-letter") data = await api.offerLetter(Number(artifactMatchId));
+      else if (type === "offer-letter") data = await api.offerLetter({ candidate_name: "", position_title: "", company_name: "", start_date: "", salary: "", location: "" });
       if (data) setResult(data.content);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
@@ -54,9 +54,9 @@ export default function ToolsPage() {
     setError(null);
     try {
       let data;
-      if (type === "i-9") data = await api.i9(Number(artifactMatchId));
-      else if (type === "e-verify") data = await api.everify(Number(artifactMatchId));
-      else if (type === "msa") data = await api.msa(Number(artifactClientId));
+      if (type === "i-9") data = await api.i9({ employee_name: "", address: "", date_of_birth: "", ssn_last4: "", phone: "", citizenship_status: "" });
+      else if (type === "e-verify") data = await api.everify({ employee_name: "", employer_name: "", employer_ein: "", i9_date: "" });
+      else if (type === "msa") data = await api.msa({ client_name: "", vendor_name: "", effective_date: "" });
       if (data) setResult(data.content);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Compliance generation failed");

@@ -24,7 +24,7 @@ import httpx
 
 from app.core.config import get_settings
 
-logger = logging.getLogger("orcai.scrapers.candidates")
+logger = logging.getLogger("orcai.scraper_candidates")
 settings = get_settings()
 
 _HEADERS = {"User-Agent": settings.SCRAPE_USER_AGENT}
@@ -167,6 +167,7 @@ def scrape_github_profiles(
                 timeout=10,
             ).json()
         except Exception:
+            logger.debug("Failed to fetch GitHub user details for %s", username)
             detail = {}
 
         bio = detail.get("bio", "") or ""
@@ -192,7 +193,7 @@ def scrape_github_profiles(
                 desc = (repo.get("description") or "")
                 skills_set.update(_extract_skills(desc))
         except Exception:
-            pass
+            logger.debug("Failed to fetch GitHub repos for skill inference: %s", username)
 
         all_text = f"{name} {bio} {company} {blog}"
         results.append({

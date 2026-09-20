@@ -77,7 +77,7 @@ def send_whatsapp_template(
     to_phone: str,
     template_name: str,
     language: str = "en",
-    vars: list[str] | None = None,
+    template_vars: list[str] | None = None,
 ) -> dict:
     phone_id = settings.WHATSAPP_PHONE_NUMBER_ID
     token = settings.WHATSAPP_APP_SECRET or settings.WHATSAPP_VERIFY_TOKEN
@@ -87,8 +87,8 @@ def send_whatsapp_template(
     url = f"https://graph.facebook.com/v18.0/{phone_id}/messages"
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     components = []
-    if vars:
-        components.append({"type": "body", "parameters": [{"type": "text", "text": v} for v in vars]})
+    if template_vars:
+        components.append({"type": "body", "parameters": [{"type": "text", "text": v} for v in template_vars]})
 
     payload = {
         "messaging_product": "whatsapp",

@@ -114,6 +114,8 @@ export default function PipelinePage() {
                 const job = await api.runMatching();
                 await pollJob(job.id);
                 await load();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Matching failed");
               } finally {
                 setLoading(false);
               }
@@ -131,9 +133,13 @@ export default function PipelinePage() {
           action={
             <button
               onClick={async () => {
-                const job = await api.runMatching();
-                await pollJob(job.id);
-                await load();
+                try {
+                  const job = await api.runMatching();
+                  await pollJob(job.id);
+                  await load();
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "Matching failed");
+                }
               }}
               className="px-3 py-1.5 rounded bg-brand text-white text-xs font-medium"
             >

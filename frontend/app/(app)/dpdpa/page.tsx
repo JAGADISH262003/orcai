@@ -32,15 +32,21 @@ export default function DpdpaPage() {
     if (!confirm(`Erase all data for ${c.seeker_name ?? "this seeker"}? This is irreversible (DPDPA S.7).`)) {
       return;
     }
-    const updated = await api.eraseConsent(c.id);
-    setRecords((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "erased", erased_at: new Date().toISOString() } : x)));
-    void updated;
+    try {
+      await api.eraseConsent(c.id);
+      setRecords((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "erased", erased_at: new Date().toISOString() } : x)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to erase consent");
+    }
   }
 
   async function withdraw(c: ConsentRecord) {
-    const updated = await api.withdrawConsent(c.id);
-    setRecords((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "withdrawn" } : x)));
-    void updated;
+    try {
+      await api.withdrawConsent(c.id);
+      setRecords((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: "withdrawn" } : x)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to withdraw consent");
+    }
   }
 
   if (loading) return <Loading label="Loading consent ledger…" />;

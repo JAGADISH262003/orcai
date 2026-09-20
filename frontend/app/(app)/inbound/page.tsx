@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { EmptyState, ErrorBanner, Loading } from "@/components/UI";
 import { api, ApiError, pollJob } from "@/lib/client";
+import { useApp } from "@/components/AppShell";
 import type { InboundMessage } from "@/lib/types";
 
 const CHANNEL_TONE: Record<string, string> = {
@@ -14,6 +15,7 @@ const CHANNEL_TONE: Record<string, string> = {
 };
 
 export default function InboundPage() {
+  const { session } = useApp();
   const [messages, setMessages] = useState<InboundMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,7 @@ export default function InboundPage() {
     setBusy(true);
     setError(null);
     try {
-      const job = await api.ingestInbound({ agency_slug: "taproot-consulting", channel, body });
+      const job = await api.ingestInbound({ agency_slug: session?.agency?.slug ?? "", channel, body });
       await pollJob(job.id);
       setBody("");
       setSimOpen(false);

@@ -12,6 +12,7 @@ services:
       retries: 10
     volumes:
       - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
 
   api:
     build: ./backend
@@ -21,17 +22,25 @@ services:
     environment: &api_env
       DATABASE_URL: postgresql+psycopg://orcai:${POSTGRES_PASSWORD:-orcai_dev_password}@db:5432/orcai
       JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-secret}
-      ENV: production
+      ENV: ${ENV:-development}
       AI_PROVIDER: ${AI_PROVIDER:-auto}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
       TELEGRAM_SECRET_TOKEN: ${TELEGRAM_SECRET_TOKEN:-}
       BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-http://localhost:3000}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       db:
         condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      - uploads:/app/uploads
+    restart: unless-stopped
 
   worker:
     build:
@@ -42,15 +51,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
 
   web:
     build: ./frontend
     environment:
       BACKEND_API_URL: http://api:8000/api/v1
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "3000:3000"
+    restart: unless-stopped
 
 volumes:
   pgdata:
+  uploads:

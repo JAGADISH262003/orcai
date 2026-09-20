@@ -40,7 +40,7 @@ export default function ImportPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.importCsv(file, mapping);
+      const data = await api.importCsv(file, mapping, consentBasis);
       setResult(data);
       setPreview(null);
     } catch (e) {

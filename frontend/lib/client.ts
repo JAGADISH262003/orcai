@@ -141,7 +141,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ raw_text, client_name }),
     }),
-  clients: () => apiFetch<Client[]>("/clients/list"),
+  clients: () => apiFetch<Client[]>("/contracts/clients/list"),
   seekers: (params = "") => apiFetch<Seeker[]>(`/seekers${params}`),
   createSeeker: (data: Record<string, unknown>) =>
     apiFetch<Seeker>("/seekers", { method: "POST", body: JSON.stringify(data) }),
@@ -183,27 +183,30 @@ export const api = {
   workflows: () => apiFetch<WorkflowCatalog>("/workflows"),
   // Scrapers
   scrapeJobs: (data: Record<string, unknown>) =>
-    apiFetch<Job>("/scrapers/jobs", { method: "POST", body: JSON.stringify(data) }),
+    apiFetch<Job>("/scrape/jobs", { method: "POST", body: JSON.stringify(data) }),
   scrapeCandidates: (data: Record<string, unknown>) =>
-    apiFetch<Job>("/scrapers/candidates", { method: "POST", body: JSON.stringify(data) }),
+    apiFetch<Job>("/scrape/candidates", { method: "POST", body: JSON.stringify(data) }),
   // Bulk import
   importCsvPreview: (file: File) => {
     const form = new FormData();
     form.append("file", file);
     return apiFetch<{ rows: Record<string, unknown>[]; auto_mapping: Record<string, string>; total: number }>("/tools/import/csv/preview", { method: "POST", body: form });
   },
-  importCsv: (file: File, mapping?: Record<string, string>) => {
+  importCsv: (file: File, mapping?: Record<string, string>, consentBasis?: string) => {
     const form = new FormData();
     form.append("file", file);
     if (mapping) form.append("mapping", JSON.stringify(mapping));
-    return apiFetch<{ imported: number; skipped: number; errors: string[] }>("/tools/import/csv", { method: "POST", body: form });
+    const params = new URLSearchParams();
+    if (consentBasis) params.set("consent_basis", consentBasis);
+    const qs = params.toString();
+    return apiFetch<{ imported: number; skipped: number; errors: string[] }>(`/tools/import/csv${qs ? `?${qs}` : ""}`, { method: "POST", body: form });
   },
   // Enrichment
   enrichCandidate: (data: Record<string, unknown>) =>
     apiFetch<{ sources: string[]; data: Record<string, unknown> }>("/tools/enrich", { method: "POST", body: JSON.stringify(data) }),
   // Portal
   portalToken: (seekerId: number) =>
-    apiFetch<{ token: string; url: string }>(`/tools/portal/${seekerId}/token`, { method: "POST" }),
+    apiFetch<{ token: string; url: string }>(`/tools/portal/${seekerId}/token`, { method: "GET" }),
   // Artifacts
   misReport: () =>
     apiFetch<{ content: string; filename: string }>("/tools/artifacts/mis"),
@@ -211,15 +214,15 @@ export const api = {
     apiFetch<{ content: string; filename: string }>("/tools/artifacts/hotlist"),
   rtr: (matchId: number) =>
     apiFetch<{ content: string; filename: string }>(`/tools/artifacts/rtr?match_id=${matchId}`),
-  offerLetter: (matchId: number) =>
-    apiFetch<{ content: string; filename: string }>(`/tools/artifacts/offer-letter?match_id=${matchId}`),
+  offerLetter: (data: Record<string, unknown>) =>
+    apiFetch<{ content: string; filename: string }>("/tools/artifacts/offer-letter", { method: "POST", body: JSON.stringify(data) }),
   // Compliance
-  i9: (matchId: number) =>
-    apiFetch<{ content: string; filename: string }>(`/tools/compliance/i-9?match_id=${matchId}`),
-  everify: (matchId: number) =>
-    apiFetch<{ content: string; filename: string }>(`/tools/compliance/e-verify?match_id=${matchId}`),
-  msa: (clientId: number) =>
-    apiFetch<{ content: string; filename: string }>(`/tools/compliance/msa?client_id=${clientId}`),
+  i9: (data: Record<string, unknown>) =>
+    apiFetch<{ content: string; filename: string }>("/tools/compliance/i9", { method: "POST", body: JSON.stringify(data) }),
+  everify: (data: Record<string, unknown>) =>
+    apiFetch<{ content: string; filename: string }>("/tools/compliance/everify", { method: "POST", body: JSON.stringify(data) }),
+  msa: (data: Record<string, unknown>) =>
+    apiFetch<{ content: string; filename: string }>("/tools/compliance/msa", { method: "POST", body: JSON.stringify(data) }),
   // Audit
   auditLogs: (params = "") =>
     apiFetch<{ id: number; action: string; user_id: number; entity_type: string; entity_id: number; meta: unknown; ip: string; created_at: string }[]>(`/audit${params}`),

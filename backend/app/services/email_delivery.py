@@ -106,8 +106,12 @@ def send_invite_email(
     agency_name: str,
     role: str,
     temp_password: str,
-    login_url: str = "http://localhost:3000/login",
+    login_url: str | None = None,
 ) -> bool:
+    if login_url is None:
+        from app.core.config import get_settings
+        s = get_settings()
+        login_url = s.cors_origins[0] + "/login" if s.cors_origins else "http://localhost:3000/login"
     html = _INVITE_HTML.format(
         agency_name=agency_name,
         role=role,
@@ -120,8 +124,12 @@ def send_invite_email(
 def send_password_reset_email(
     to_email: str,
     reset_token: str,
-    reset_url: str = "http://localhost:3000/reset",
+    reset_url: str | None = None,
 ) -> bool:
+    if reset_url is None:
+        from app.core.config import get_settings
+        s = get_settings()
+        reset_url = s.cors_origins[0] + "/reset" if s.cors_origins else "http://localhost:3000/reset"
     html = _RESET_HTML.format(reset_token=reset_token, reset_url=reset_url)
     return send_email(to_email, "ORCAI — Password Reset Request", html)
 

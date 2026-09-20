@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { Badge, toneForStatus } from "@/components/Badge";
 import { EmptyState, ErrorBanner, Loading, Modal } from "@/components/UI";
-import { api, ApiError, pollJob } from "@/lib/client";
+import { api, apiFetch, ApiError, pollJob } from "@/lib/client";
 import type { Contract } from "@/lib/types";
 
 export default function ContractsPage() {
@@ -60,13 +60,25 @@ export default function ContractsPage() {
 
   async function toggleStatus(c: Contract) {
     const next = c.status === "active" ? "closed" : "active";
-    setContracts((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: next } : x)));
+    try {
+      await apiFetch(`/contracts/${c.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: next }),
+      });
+      setContracts((prev) => prev.map((x) => (x.id === c.id ? { ...x, status: next } : x)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update status");
+    }
   }
 
   async function remove(c: Contract) {
     if (!confirm(`Delete contract "${c.title ?? c.id}"? This removes its matches.`)) return;
-    await fetch(`/api/contracts/${c.id}`, { method: "DELETE" });
-    setContracts((prev) => prev.filter((x) => x.id !== c.id));
+    try {
+      await apiFetch(`/contracts/${c.id}`, { method: "DELETE" });
+      setContracts((prev) => prev.filter((x) => x.id !== c.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete contract");
+    }
   }
 
   if (loading) return <Loading label="Loading contracts…" />;

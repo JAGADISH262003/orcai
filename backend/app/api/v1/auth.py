@@ -1,3 +1,4 @@
+import logging
 import re
 import secrets
 from datetime import UTC, datetime, timedelta
@@ -41,6 +42,8 @@ from app.services.auth_tokens import (
     revoke_refresh,
     rotate_refresh,
 )
+
+logger = logging.getLogger("orcai.auth")
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 settings = get_settings()
@@ -229,7 +232,7 @@ def invite(payload: InviteIn, request: Request, db: DbDep, _: OwnerOrAdmin, curr
         from app.services.email_delivery import send_invite_email
         send_invite_email(email, current_user.agency.name, payload.role, temp_password)
     except Exception:
-        pass
+        logger.warning("Failed to send invite email to %s", email)
     out = user_to_out(user)
     return InviteOut(**out.model_dump(), temp_password=temp_password)
 
@@ -243,7 +246,12 @@ def password_reset_request(payload: PasswordResetRequestIn, request: Request, db
         token = create_password_reset_token(user.id, user.email)
         audit(db, agency_id=user.agency_id, user_id=user.id, action="auth.password_reset_request", ip=ip)
         db.commit()
-        return {"detail": "Password reset initiated", "reset_token": token}
+        try:
+            from app.services.email_delivery import send_password_reset_email
+            send_password_reset_email(user.email, token)
+        except Exception:
+            logger.warning("Failed to send password reset email to %s", user.email)
+        return {"detail": "Password reset initiated"}
     db.commit()
     return {"detail": "Password reset initiated"}
 

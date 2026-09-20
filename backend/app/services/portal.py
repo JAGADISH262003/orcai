@@ -54,6 +54,7 @@ def verify_portal_token(token: str) -> dict | None:
             return None
         return {"seeker_id": int(seeker_id), "agency_id": int(agency_id)}
     except Exception:
+        logger.debug("Invalid or expired portal token")
         return None
 
 

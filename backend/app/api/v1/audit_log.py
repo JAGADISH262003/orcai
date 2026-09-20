@@ -1,5 +1,6 @@
 """Audit log viewing endpoint and subscription enforcement."""
 
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Query
 from sqlalchemy import func
@@ -39,7 +40,7 @@ def list_audit_logs(
 @router.get("/stats")
 def audit_stats(db: DbDep, agency: CurrentAgency):
 
-    week_ago = func.datetime("now", "-7 days")
+    week_ago = datetime.now(UTC) - timedelta(days=7)
     total = db.query(func.count(AuditLog.id)).filter(AuditLog.agency_id == agency.id).scalar() or 0
     this_week = (
         db.query(func.count(AuditLog.id))

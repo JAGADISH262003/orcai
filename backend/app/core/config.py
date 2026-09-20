@@ -1,7 +1,12 @@
+import logging
 from functools import lru_cache
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger("orcai.config")
+
+_INSECURE_DEFAULTS = {"change-me-to-a-long-random-secret", "portal-dev-secret"}
 
 
 class Settings(BaseSettings):
@@ -91,6 +96,13 @@ class Settings(BaseSettings):
     # --- Candidate self-service portal ---------------------------------
     PORTAL_SECRET_KEY: str = "portal-dev-secret"
     PORTAL_TOKEN_EXPIRE_HOURS: int = 72
+
+    def model_post_init(self, __context) -> None:
+        if self.ENV == "production":
+            if self.JWT_SECRET in _INSECURE_DEFAULTS:
+                raise ValueError("JWT_SECRET must be changed from its default value in production")
+            if self.PORTAL_SECRET_KEY in _INSECURE_DEFAULTS:
+                raise ValueError("PORTAL_SECRET_KEY must be changed from its default value in production")
 
     @field_validator("BACKEND_CORS_ORIGINS")
     @classmethod

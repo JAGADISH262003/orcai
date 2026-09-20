@@ -1,11 +1,13 @@
 """Resume / document text extraction and profile parsing."""
 
+import logging
 import re
 from pathlib import Path
 
 from app.core.config import get_settings
 from app.services.contract_parser import SKILLS_LEXICON
 
+logger = logging.getLogger("orcai.resume_parser")
 settings = get_settings()
 
 _EMAIL_RE = re.compile(r"[\w.+-]+@[\w-]+\.[\w.]+")
@@ -20,6 +22,7 @@ def extract_text_from_pdf(path: Path) -> str:
         reader = PdfReader(str(path))
         return "\n".join(page.extract_text() or "" for page in reader.pages)
     except Exception:
+        logger.warning("Failed to extract text from PDF: %s", path.name)
         return ""
 
 
@@ -30,6 +33,7 @@ def extract_text_from_docx(path: Path) -> str:
         doc = Document(str(path))
         return "\n".join(p.text for p in doc.paragraphs)
     except Exception:
+        logger.warning("Failed to extract text from DOCX: %s", path.name)
         return ""
 
 

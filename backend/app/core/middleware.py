@@ -8,7 +8,7 @@ from threading import Lock
 
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 from app.core.config import get_settings
 from app.core.logging import request_id_var
@@ -38,7 +38,6 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
         except Exception:
-            response = Response(status_code=500)
             raise
         finally:
             request_id_var.reset(token)

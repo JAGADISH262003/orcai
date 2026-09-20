@@ -29,8 +29,12 @@ export default function HitlPage() {
   }, []);
 
   async function decide(m: Match, decision: "approve" | "reject") {
-    await api.reviewHitl(m.id, decision, notes[m.id]);
-    setQueue((prev) => prev.filter((x) => x.id !== m.id));
+    try {
+      await api.reviewHitl(m.id, decision, notes[m.id]);
+      setQueue((prev) => prev.filter((x) => x.id !== m.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Review failed");
+    }
   }
 
   if (loading) return <Loading label="Loading HITL queue…" />;

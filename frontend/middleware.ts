@@ -12,7 +12,8 @@ export async function middleware(request: NextRequest) {
     pathname === "/api/auth/login" ||
     pathname === "/api/auth/register" ||
     pathname === "/api/auth/refresh" ||
-    pathname === "/api/auth/logout"
+    pathname === "/api/auth/logout" ||
+    pathname === "/api/auth/me"
   ) {
     return NextResponse.next();
   }

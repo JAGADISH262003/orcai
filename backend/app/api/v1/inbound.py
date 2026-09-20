@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -12,6 +13,8 @@ from app.schemas.inbound import InboundIn, InboundOut
 from app.services.inbound import record_inbound
 from app.services.jobs import run_handler_inline, submit_job
 from app.services.messaging import send_telegram_message, send_whatsapp_message
+
+logger = logging.getLogger("orcai.inbound")
 
 router = APIRouter(prefix="/inbound", tags=["inbound"])
 settings = get_settings()
@@ -129,7 +132,7 @@ async def whatsapp_webhook(request: Request, payload: dict[str, Any], db: DbDep)
                         try:
                             send_whatsapp_message(phone, f"Thanks for reaching out, {name or 'there'}! We've received your message and will get back to you shortly.")
                         except Exception:
-                            pass
+                            logger.warning("Failed to send WhatsApp acknowledgement to %s", phone)
     return {"status": "ok", "processed": seen}
 
 
@@ -151,5 +154,5 @@ async def telegram_webhook(request: Request, payload: dict[str, Any], db: DbDep)
             try:
                 send_telegram_message(str(chat_id), f"Thanks for reaching out, {name or 'there'}! We've received your message and will get back to you shortly.")
             except Exception:
-                pass
+                logger.warning("Failed to send Telegram acknowledgement to %s", chat_id)
     return {"status": "ok"}
