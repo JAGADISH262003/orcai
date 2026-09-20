@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 @router.get("")
 def dashboard_stats(user: CurrentUser, db: DbDep) -> dict[str, Any]:
     aid = user.agency_id
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     week_ago = now - timedelta(days=7)
 
     active_contracts = db.scalar(
@@ -98,7 +98,7 @@ def dashboard_stats(user: CurrentUser, db: DbDep) -> dict[str, Any]:
 @router.get("/timeline")
 def dashboard_timeline(user: CurrentUser, db: DbDep, days: int = 30) -> list[dict[str, Any]]:
     aid = user.agency_id
-    start = datetime.utcnow() - timedelta(days=days)
+    start = datetime.now(UTC) - timedelta(days=days)
 
     matches = db.scalars(
         select(Match)

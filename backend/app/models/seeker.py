@@ -36,7 +36,7 @@ class Seeker(Base, TimestampMixin):
     education: Mapped[str | None] = mapped_column(String(300), nullable=True)
 
     # Sourcing
-    source: Mapped[str] = mapped_column(String(30), default="manual")  # manual|import|inbound|apollo
+    source: Mapped[str] = mapped_column(String(30), default="manual", index=True)  # manual|import|inbound|apollo
     source_channel: Mapped[str | None] = mapped_column(String(60), nullable=True)  # whatsapp|telegram|indeed|file
     resume_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
     resume_text: Mapped[str | None] = mapped_column(Text, nullable=True)
@@ -44,7 +44,7 @@ class Seeker(Base, TimestampMixin):
 
     # Trust / compliance
     is_verified: Mapped[bool] = mapped_column(default=False)
-    is_active: Mapped[bool] = mapped_column(default=True)
+    is_active: Mapped[bool] = mapped_column(default=True, index=True)
 
     agency: Mapped["Agency"] = relationship(back_populates="seekers")
     matches: Mapped[list["Match"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")

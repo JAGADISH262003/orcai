@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -59,14 +59,14 @@ def mark_read(notification_id: int, user: CurrentUser, db: DbDep) -> dict[str, s
     if not n or n.agency_id != user.agency_id:
         raise HTTPException(404, "Notification not found")
     n.is_read = True
-    n.read_at = datetime.utcnow()
+    n.read_at = datetime.now(UTC)
     db.commit()
     return {"ok": True}
 
 
 @router.post("/read-all")
 def mark_all_read(user: CurrentUser, db: DbDep) -> dict[str, str]:
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     stmt = (
         update(Notification)
         .where(

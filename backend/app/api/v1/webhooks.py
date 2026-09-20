@@ -174,7 +174,7 @@ def delete_webhook(
 
 
 @router.post("/{webhook_id}/test")
-def test_webhook(
+async def test_webhook(
     webhook_id: int,
     db: DbDep,
     agency: CurrentAgency,
@@ -187,7 +187,7 @@ def test_webhook(
     from app.services.webhook_dispatch import _deliver
 
     test_payload = {"event": "webhook.test", "agency_id": agency.id, "timestamp": "now"}
-    result = _deliver(wh, "webhook.test", test_payload, db)
+    result = await _deliver(wh, "webhook.test", test_payload, db)
     db.commit()
     return result
 

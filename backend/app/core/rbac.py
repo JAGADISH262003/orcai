@@ -17,6 +17,26 @@ class Permission(StrEnum):
     TEAMS_MANAGE = "teams.manage"
     AUDIT_READ = "audit.read"
     SETTINGS_WRITE = "settings.write"
+    INTERVIEWS_READ = "interviews.read"
+    INTERVIEWS_WRITE = "interviews.write"
+    NOTES_READ = "notes.read"
+    NOTES_WRITE = "notes.write"
+    DOCUMENTS_READ = "documents.read"
+    DOCUMENTS_WRITE = "documents.write"
+    CAMPAIGNS_READ = "campaigns.read"
+    CAMPAIGNS_WRITE = "campaigns.write"
+    SCORECARDS_READ = "scorecards.read"
+    SCORECARDS_WRITE = "scorecards.write"
+    WEBHOOKS_READ = "webhooks.read"
+    WEBHOOKS_WRITE = "webhooks.write"
+    EMAIL_SEND = "email.send"
+    NOTIFICATIONS_READ = "notifications.read"
+    TAGS_READ = "tags.read"
+    TAGS_WRITE = "tags.write"
+    ACTIVITY_READ = "activity.read"
+    ANALYTICS_READ = "analytics.read"
+    OFFERS_READ = "offers.read"
+    OFFERS_WRITE = "offers.write"
 
 
 ROLE_PERMISSIONS: dict[str, set[Permission]] = {
@@ -31,10 +51,30 @@ ROLE_PERMISSIONS: dict[str, set[Permission]] = {
         Permission.MATCHES_WRITE,
         Permission.HITL_READ,
         Permission.HITL_REVIEW,
+        Permission.INTERVIEWS_READ,
+        Permission.INTERVIEWS_WRITE,
+        Permission.NOTES_READ,
+        Permission.NOTES_WRITE,
+        Permission.DOCUMENTS_READ,
+        Permission.DOCUMENTS_WRITE,
+        Permission.CAMPAIGNS_READ,
+        Permission.CAMPAIGNS_WRITE,
+        Permission.SCORECARDS_READ,
+        Permission.SCORECARDS_WRITE,
+        Permission.EMAIL_SEND,
+        Permission.NOTIFICATIONS_READ,
+        Permission.TAGS_READ,
+        Permission.TAGS_WRITE,
+        Permission.ACTIVITY_READ,
+        Permission.ANALYTICS_READ,
+        Permission.OFFERS_READ,
+        Permission.OFFERS_WRITE,
     },
     "client": {
         Permission.CONTRACTS_READ,
         Permission.MATCHES_READ,
+        Permission.NOTIFICATIONS_READ,
+        Permission.ANALYTICS_READ,
     },
 }
 

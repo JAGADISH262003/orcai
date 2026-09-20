@@ -1,6 +1,7 @@
 """Idempotent demo seeder. Run: python -m app.seed."""
 
 import asyncio
+import secrets
 from datetime import UTC
 
 from app.core.config import get_settings
@@ -16,7 +17,7 @@ settings = get_settings()
 
 DEMO_AGENCY = "taproot-consulting"
 DEMO_EMAIL = "owner@taproot.io"
-DEMO_PASSWORD = "Orcai@12345"
+DEMO_PASSWORD = secrets.token_urlsafe(12)
 
 DEMO_CONTRACTS = [
     {

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 
 
 def _days_ago(days: int) -> datetime:
-    return datetime.utcnow() - timedelta(days=days)
+    return datetime.now(UTC) - timedelta(days=days)
 
 
 @router.get("/funnel")
@@ -87,7 +87,7 @@ def time_to_fill(
 
     for m in placed:
         if m.created_at:
-            days_to_place = (datetime.utcnow() - m.created_at).days
+            days_to_place = (datetime.now(UTC) - m.created_at).days
             total_days += days_to_place
             by_contract.setdefault(m.contract_id, []).append(float(days_to_place))
 
@@ -318,7 +318,7 @@ def pipeline_velocity(
     for m in matches:
         if m.created_at:
             stage = m.status or "unknown"
-            elapsed = (datetime.utcnow() - m.created_at).days
+            elapsed = (datetime.now(UTC) - m.created_at).days
             stage_times.setdefault(stage, []).append(float(elapsed))
 
     results = []

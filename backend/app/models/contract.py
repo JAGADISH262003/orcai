@@ -26,7 +26,7 @@ class Contract(Base, TimestampMixin):
 
     # Parsed / structured fields (populated by the AI or deterministic extractor)
     title: Mapped[str | None] = mapped_column(String(200), nullable=True)
-    status: Mapped[str] = mapped_column(String(20), default="active")  # draft|active|filled|closed
+    status: Mapped[str] = mapped_column(String(20), default="active", index=True)  # draft|active|filled|closed
     location: Mapped[str | None] = mapped_column(String(160), nullable=True)
     is_remote: Mapped[bool | None] = mapped_column(nullable=True)
     duration_months: Mapped[int | None] = mapped_column(Integer, nullable=True)

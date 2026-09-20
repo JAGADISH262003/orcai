@@ -25,7 +25,7 @@ class Offer(Base, TimestampMixin):
     match_id: Mapped[int | None] = mapped_column(ForeignKey("matches.id"), nullable=True, index=True)
 
     status: Mapped[str] = mapped_column(
-        String(30), default="draft"
+        String(30), default="draft", index=True
     )  # draft|pending_approval|approved|sent|accepted|rejected|expired|withdrawn
 
     offered_salary: Mapped[float | None] = mapped_column(nullable=True)

@@ -21,7 +21,7 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 
-def create_access_token(subject: str, agency_id: int | None = None, role: str = "agent") -> str:
+def create_access_token(subject: str, agency_id: int | None = None, role: str = "recruiter") -> str:
     now = datetime.now(UTC)
     payload = {
         "sub": subject,

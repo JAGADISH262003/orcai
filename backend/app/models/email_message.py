@@ -27,7 +27,7 @@ class EmailMessage(Base, TimestampMixin):
     template_name: Mapped[str | None] = mapped_column(String(80), nullable=True)
     template_vars: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
-    status: Mapped[str] = mapped_column(String(20), default="queued")
+    status: Mapped[str] = mapped_column(String(20), default="queued", index=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 

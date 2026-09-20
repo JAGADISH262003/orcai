@@ -34,13 +34,13 @@ class Match(Base, TimestampMixin):
     seeker_id: Mapped[int] = mapped_column(ForeignKey("seekers.id"), index=True)
 
     score: Mapped[float] = mapped_column(Float, default=0.0)  # 0..100
-    tier: Mapped[str] = mapped_column(String(8), default="C")  # A | B | C
+    tier: Mapped[str] = mapped_column(String(8), default="C", index=True)  # A | B | C
     status: Mapped[str] = mapped_column(
-        String(20), default="pending"
+        String(20), default="pending", index=True
     )  # pending|approved|rejected|submitted|placed
-    hitl_required: Mapped[bool] = mapped_column(default=False)
+    hitl_required: Mapped[bool] = mapped_column(default=False, index=True)
     rationale: Mapped[str | None] = mapped_column(Text, nullable=True)  # AI uncertainty rationale
-    hitl_status: Mapped[str | None] = mapped_column(String(20), nullable=True)  # pending_review|approved|rejected
+    hitl_status: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)  # pending_review|approved|rejected
     human_review: Mapped[str | None] = mapped_column(Text, nullable=True)
     reviewed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

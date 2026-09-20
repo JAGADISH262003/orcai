@@ -9,11 +9,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from app.api.deps import CurrentUser, DbDep
+from app.core.config import get_settings
 from app.models.document import Document
 
 router = APIRouter(prefix="/documents", tags=["documents"])
-
-UPLOAD_DIR = Path("uploads")
 
 
 class DocumentOut(BaseModel):
@@ -77,11 +76,15 @@ async def upload_document(
     entity_id: int | None = Form(None),
     description: str | None = Form(None),
 ) -> dict[str, Any]:
+    settings = get_settings()
+    UPLOAD_DIR = Path(settings.UPLOAD_DIR)
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     ext = Path(file.filename or "file").suffix
     safe_name = f"{uuid.uuid4().hex}{ext}"
     file_path = UPLOAD_DIR / safe_name
     content = await file.read()
+    if len(content) > settings.MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail=f"File too large. Max: {settings.MAX_UPLOAD_BYTES} bytes")
     file_path.write_bytes(content)
 
     doc = Document(

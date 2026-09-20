@@ -22,7 +22,7 @@ class Notification(Base, TimestampMixin):
     message: Mapped[str] = mapped_column(Text)
     notification_type: Mapped[str] = mapped_column(String(30), default="info")
 
-    is_read: Mapped[bool] = mapped_column(default=False)
+    is_read: Mapped[bool] = mapped_column(default=False, index=True)
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     related_entity_type: Mapped[str | None] = mapped_column(String(40), nullable=True)
