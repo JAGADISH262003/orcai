@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { TierBadge } from "@/components/Badge";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { EmptyState, ErrorBanner, Loading } from "@/components/UI";
 import { api, pollJob } from "@/lib/client";
 import type { Contract, Match, WorkflowStage } from "@/lib/types";
@@ -84,148 +85,150 @@ export default function PipelinePage() {
   if (error) return <ErrorBanner message={error} onRetry={load} />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {workflow?.label ?? "Matching & Submissions Pipeline"}
-          </h1>
-          <p className="text-xs text-[#8a8f98] mt-1">
-            {workflow?.description ?? "Seeker-candidate matches flowing from AI scoring to placement."}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <select
-            value={contractFilter}
-            onChange={(e) => setContractFilter(e.target.value ? Number(e.target.value) : "")}
-            className="linear-input px-3 py-1.5 text-xs"
-          >
-            <option value="">All contracts</option>
-            {contracts.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.title ?? c.id}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={async () => {
-              setLoading(true);
-              try {
-                const job = await api.runMatching();
-                await pollJob(job.id);
-                await load();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Matching failed");
-              } finally {
-                setLoading(false);
-              }
-            }}
-            className="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition"
-          >
-            Re-run matching
-          </button>
-        </div>
-      </div>
-
-      {matches.length === 0 ? (
-        <EmptyState
-          text="No matches yet — post a contract and run the matching engine."
-          action={
+    <ErrorBoundary>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {workflow?.label ?? "Matching & Submissions Pipeline"}
+            </h1>
+            <p className="text-xs text-[#8a8f98] mt-1">
+              {workflow?.description ?? "Seeker-candidate matches flowing from AI scoring to placement."}
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <select
+              value={contractFilter}
+              onChange={(e) => setContractFilter(e.target.value ? Number(e.target.value) : "")}
+              className="linear-input px-3 py-1.5 text-xs"
+            >
+              <option value="">All contracts</option>
+              {contracts.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title ?? c.id}
+                </option>
+              ))}
+            </select>
             <button
               onClick={async () => {
+                setLoading(true);
                 try {
                   const job = await api.runMatching();
                   await pollJob(job.id);
                   await load();
                 } catch (err) {
                   setError(err instanceof Error ? err.message : "Matching failed");
+                } finally {
+                  setLoading(false);
                 }
               }}
-              className="px-3 py-1.5 rounded bg-brand text-white text-xs font-medium"
+              className="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition"
             >
-              Run matching engine
+              Re-run matching
             </button>
-          }
-        />
-      ) : (
-        <div
-          className="grid gap-4"
-          style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}
-        >
-          {grouped.map((col) => (
-            <div key={col.key} className={`linear-card p-4 space-y-3 bg-[#0f1011] border-t-2 ${col.tone}`}>
-              <div className="flex justify-between items-center pb-2 border-b border-white/[0.08] text-xs font-semibold">
-                <span>{col.label}</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">
-                  {col.items.length}
-                </span>
-              </div>
-              {col.items.length === 0 ? (
-                <p className="text-[11px] text-[#62666d] py-4 text-center">Empty</p>
-              ) : (
-                col.items.map((m) => (
-                  <div key={m.id} className="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-2 hover:border-brand/40 transition">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="text-xs font-semibold text-[#f7f8f8]">{m.seeker_name ?? "Seeker"}</div>
-                        <div className="text-[10px] text-[#8a8f98]">{m.contract_title ?? ""}</div>
-                        {m.seeker_headline ? (
-                          <div className="text-[10px] text-[#62666d] mt-0.5">{m.seeker_headline}</div>
-                        ) : null}
-                      </div>
-                      <div className="text-right">
-                        <div className={`font-mono font-bold text-sm ${m.tier === "A" ? "text-emerald-400" : m.tier === "B" ? "text-amber-400" : "text-[#8a8f98]"}`}>
-                          {m.score}%
-                        </div>
-                        <TierBadge tier={m.tier} />
-                      </div>
-                    </div>
-                    {m.hitl_required ? (
-                      <div className="text-[10px] text-amber-400 py-1 px-1.5 rounded bg-amber-500/10">
-                        awaiting human review
-                      </div>
-                    ) : null}
-                    {!col.isTerminal ? (
-                      <div className="flex space-x-2 pt-1">
-                        {col.isEntry && col.key !== rejectKey ? (
-                          <button
-                            onClick={() => {
-                              const next = getNextStageKey(col.key);
-                              if (next) advance(m, next);
-                            }}
-                            className="flex-1 py-1.5 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[10px] font-medium"
-                          >
-                            Approve
-                          </button>
-                        ) : null}
-                        {col.isEntry && col.key !== rejectKey ? (
-                          <button
-                            onClick={() => advance(m, rejectKey)}
-                            className="px-2 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px]"
-                          >
-                            Reject
-                          </button>
-                        ) : null}
-                        {!col.isEntry && col.key !== rejectKey ? (
-                          <button
-                            onClick={() => {
-                              const next = getNextStageKey(col.key);
-                              if (next) advance(m, next);
-                            }}
-                            className="flex-1 py-1.5 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[10px] font-medium"
-                          >
-                            Next stage
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                ))
-              )}
-            </div>
-          ))}
+          </div>
         </div>
-      )}
-    </div>
+
+        {matches.length === 0 ? (
+          <EmptyState
+            text="No matches yet — post a contract and run the matching engine."
+            action={
+              <button
+                onClick={async () => {
+                  try {
+                    const job = await api.runMatching();
+                    await pollJob(job.id);
+                    await load();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Matching failed");
+                  }
+                }}
+                className="px-3 py-1.5 rounded bg-brand text-white text-xs font-medium"
+              >
+                Run matching engine
+              </button>
+            }
+          />
+        ) : (
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}
+          >
+            {grouped.map((col) => (
+              <div key={col.key} className={`linear-card p-4 space-y-3 bg-[#0f1011] border-t-2 ${col.tone}`}>
+                <div className="flex justify-between items-center pb-2 border-b border-white/[0.08] text-xs font-semibold">
+                  <span>{col.label}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/[0.06] text-[#8a8f98]">
+                    {col.items.length}
+                  </span>
+                </div>
+                {col.items.length === 0 ? (
+                  <p className="text-[11px] text-[#62666d] py-4 text-center">Empty</p>
+                ) : (
+                  col.items.map((m) => (
+                    <div key={m.id} className="p-3 rounded bg-white/[0.02] border border-white/[0.06] space-y-2 hover:border-brand/40 transition">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="text-xs font-semibold text-[#f7f8f8]">{m.seeker_name ?? "Seeker"}</div>
+                          <div className="text-[10px] text-[#8a8f98]">{m.contract_title ?? ""}</div>
+                          {m.seeker_headline ? (
+                            <div className="text-[10px] text-[#62666d] mt-0.5">{m.seeker_headline}</div>
+                          ) : null}
+                        </div>
+                        <div className="text-right">
+                          <div className={`font-mono font-bold text-sm ${m.tier === "A" ? "text-emerald-400" : m.tier === "B" ? "text-amber-400" : "text-[#8a8f98]"}`}>
+                            {m.score}%
+                          </div>
+                          <TierBadge tier={m.tier} />
+                        </div>
+                      </div>
+                      {m.hitl_required ? (
+                        <div className="text-[10px] text-amber-400 py-1 px-1.5 rounded bg-amber-500/10">
+                          awaiting human review
+                        </div>
+                      ) : null}
+                      {!col.isTerminal ? (
+                        <div className="flex space-x-2 pt-1">
+                          {col.isEntry && col.key !== rejectKey ? (
+                            <button
+                              onClick={() => {
+                                const next = getNextStageKey(col.key);
+                                if (next) advance(m, next);
+                              }}
+                              className="flex-1 py-1.5 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[10px] font-medium"
+                            >
+                              Approve
+                            </button>
+                          ) : null}
+                          {col.isEntry && col.key !== rejectKey ? (
+                            <button
+                              onClick={() => advance(m, rejectKey)}
+                              className="px-2 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 text-[10px]"
+                            >
+                              Reject
+                            </button>
+                          ) : null}
+                          {!col.isEntry && col.key !== rejectKey ? (
+                            <button
+                              onClick={() => {
+                                const next = getNextStageKey(col.key);
+                                if (next) advance(m, next);
+                              }}
+                              className="flex-1 py-1.5 rounded bg-brand/20 hover:bg-brand/30 text-brand-light text-[10px] font-medium"
+                            >
+                              Next stage
+                            </button>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }

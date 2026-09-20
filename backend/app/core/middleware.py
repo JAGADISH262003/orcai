@@ -11,7 +11,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
 from app.core.config import get_settings
-from app.core.logging import request_id_var
+from app.core.logging import request_id_var, set_log_context
 
 logger = logging.getLogger("orcai.http")
 
@@ -34,6 +34,17 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:16]
         token = request_id_var.set(request_id)
+
+        content_length = request.headers.get("content-length")
+        body_size = int(content_length) if content_length else None
+
+        set_log_context(
+            request_id=request_id,
+            method=request.method,
+            path=request.url.path,
+            body_size=body_size,
+        )
+
         start = time.perf_counter()
         try:
             response = await call_next(request)
@@ -43,6 +54,11 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
             request_id_var.reset(token)
 
         duration_ms = round((time.perf_counter() - start) * 1000, 1)
+        set_log_context(
+            status=response.status_code,
+            duration_ms=duration_ms,
+        )
+
         response.headers["X-Request-ID"] = request_id
         logger.info(
             "%s %s %d (%s)",
@@ -57,6 +73,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
                     "status": response.status_code,
                     "duration_ms": duration_ms,
                     "ip": client_ip(request),
+                    "body_size": body_size,
                 }
             },
         )

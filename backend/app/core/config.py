@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./orcai.db"
 
     # --- Auth ------------------------------------------------------------
-    JWT_SECRET: str = "change-me-to-a-long-random-secret"
+    JWT_SECRET: str = ""
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
@@ -60,6 +60,7 @@ class Settings(BaseSettings):
     JOBS_POLL_SECONDS: float = 2.0
     JOBS_MAX_ATTEMPTS: int = 3
     JOBS_LEASE_SECONDS: int = 300
+    WORKER_ENABLED: bool = True
 
     # --- Billing / uploads ----------------------------------------------
     DEFAULT_AGENCY_TIER: str = "starter"
@@ -94,7 +95,7 @@ class Settings(BaseSettings):
     RAZORPAY_WEBHOOK_SECRET: str | None = None
 
     # --- Candidate self-service portal ---------------------------------
-    PORTAL_SECRET_KEY: str = "portal-dev-secret"
+    PORTAL_SECRET_KEY: str = ""
     PORTAL_TOKEN_EXPIRE_HOURS: int = 72
 
     # --- Twilio (SMS) ---------------------------------------------------
@@ -106,11 +107,12 @@ class Settings(BaseSettings):
     WEBHOOK_MAX_RETRIES: int = 3
 
     def model_post_init(self, __context) -> None:
-        if self.ENV == "production":
-            if self.JWT_SECRET in _INSECURE_DEFAULTS:
-                raise ValueError("JWT_SECRET must be changed from its default value in production")
-            if self.PORTAL_SECRET_KEY in _INSECURE_DEFAULTS:
-                raise ValueError("PORTAL_SECRET_KEY must be changed from its default value in production")
+        if not self.JWT_SECRET:
+            raise ValueError("JWT_SECRET must be set")
+        if len(self.JWT_SECRET) < 32:
+            raise ValueError("JWT_SECRET must be at least 32 characters")
+        if not self.PORTAL_SECRET_KEY:
+            raise ValueError("PORTAL_SECRET_KEY must be set")
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

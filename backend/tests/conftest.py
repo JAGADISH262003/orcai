@@ -5,7 +5,8 @@ import tempfile
 _tmp = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 _tmp.close()
 os.environ["DATABASE_URL"] = f"sqlite:///{_tmp.name}"
-os.environ["JWT_SECRET"] = "test-secret"
+os.environ["JWT_SECRET"] = "test-secret-that-is-at-least-32-chars"
+os.environ["PORTAL_SECRET_KEY"] = "test-portal-secret-key-for-testing-1234"
 os.environ["RL_ENABLED"] = "false"
 
 import pytest  # noqa: E402

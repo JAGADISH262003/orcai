@@ -154,13 +154,20 @@ async def process_available(db: Session) -> int:
 async def worker_loop() -> None:
     """Infinite worker loop (used by lifespan task + `python -m app.worker`)."""
     poll = settings.JOBS_POLL_SECONDS
+    backoff = poll
+    MAX_BACKOFF = 30.0
     while True:
         try:
             db = SessionLocal()
             try:
-                await process_available(db)
+                count = await process_available(db)
             finally:
                 db.close()
         except Exception:  # noqa: BLE001 - keep the loop alive
             logger.exception("worker iteration failed")
-        await asyncio.sleep(poll)
+            count = 0
+        if count > 0:
+            backoff = poll
+        else:
+            backoff = min(backoff * 2, MAX_BACKOFF)
+        await asyncio.sleep(backoff)

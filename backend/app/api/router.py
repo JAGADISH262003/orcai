@@ -20,6 +20,7 @@ from app.api.v1 import (
     jobs,
     matches,
     messaging,
+    metrics,
     notes,
     notifications,
     offers,
@@ -66,3 +67,4 @@ api_router.include_router(client_portal.router)
 api_router.include_router(campaigns.router)
 api_router.include_router(ai_screening.router)
 api_router.include_router(offers.router)
+api_router.include_router(metrics.router)

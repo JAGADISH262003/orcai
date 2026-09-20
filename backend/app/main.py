@@ -9,6 +9,7 @@ from sqlalchemy import text
 from app.api.router import api_router
 from app.core.config import get_settings
 from app.core.logging import setup_logging
+from app.core.metrics_middleware import MetricsMiddleware
 from app.core.middleware import (
     RateLimitMiddleware,
     RequestContextMiddleware,
@@ -35,16 +36,21 @@ async def lifespan(app: FastAPI):
     from app.services import job_handlers  # noqa: F401
     from app.services.jobs import worker_loop
 
-    worker_task = asyncio.create_task(worker_loop())
-    logger.info("job worker started (in-process)")
+    worker_task = None
+    if settings.WORKER_ENABLED:
+        worker_task = asyncio.create_task(worker_loop())
+        logger.info("job worker started (in-process)")
+    else:
+        logger.info("job worker skipped (use standalone worker or set WORKER_ENABLED=true)")
     try:
         yield
     finally:
-        worker_task.cancel()
-        try:
-            await worker_task
-        except asyncio.CancelledError:
-            pass
+        if worker_task is not None:
+            worker_task.cancel()
+            try:
+                await worker_task
+            except asyncio.CancelledError:
+                pass
 
 
 def create_app() -> FastAPI:
@@ -65,6 +71,7 @@ def create_app() -> FastAPI:
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestContextMiddleware)
     app.add_middleware(RateLimitMiddleware)
+    app.add_middleware(MetricsMiddleware)
 
     app.include_router(api_router)
 

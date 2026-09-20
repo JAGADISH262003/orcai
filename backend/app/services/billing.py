@@ -78,8 +78,8 @@ def stripe_verify_webhook(payload: bytes, signature: str) -> dict | None:
         k, v = item.split("=", 1)
         parts[k] = v
     ts = parts.get("t", "")
-    signed = f"{ts}.{payload.decode()}"
-    expected = hmac.new(secret.encode(), signed.encode(), hashlib.sha256).hexdigest()
+    msg = f"{ts}.".encode() + payload
+    expected = hmac.new(secret.encode(), msg, hashlib.sha256).hexdigest()
     if hmac.compare_digest(expected, parts.get("v1", "")):
         return json.loads(payload)
     return None
