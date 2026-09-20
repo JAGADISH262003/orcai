@@ -1,15 +1,20 @@
 import type {
+  AgencySettings,
   Client,
   ConsentRecord,
   Contract,
   Dashboard,
+  EnhancedDashboard,
   InboundMessage,
+  Interview,
   Job,
   Match,
   Plan,
   Seeker,
   Session,
   Subscription,
+  TeamMember,
+  TimelinePoint,
   WorkflowCatalog,
 } from "@/lib/types";
 
@@ -131,6 +136,12 @@ export async function logout(): Promise<void> {
   }
 }
 
+function toQuery(params?: Record<string, any>): string {
+  if (!params) return '';
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
+  return new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
+}
+
 // Resource helpers (proxied to the backend by middleware)
 export const api = {
   dashboard: () => apiFetch<Dashboard>("/billing/dashboard"),
@@ -224,6 +235,54 @@ export const api = {
   msa: (data: Record<string, unknown>) =>
     apiFetch<{ content: string; filename: string }>("/tools/compliance/msa", { method: "POST", body: JSON.stringify(data) }),
   // Audit
+  // Individual resources
+  seeker: (id: number) => apiFetch<Seeker>(`/seekers/${id}`),
+  updateSeeker: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Seeker>(`/seekers/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  contract: (id: number) => apiFetch<Contract>(`/contracts/${id}`),
+  updateContract: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Contract>(`/contracts/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  setContractStatus: (id: number, status: string) =>
+    apiFetch<Contract>(`/contracts/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),
+  match: (id: number) => apiFetch<Match>(`/matches/${id}`),
+  // Tags
+  tags: () => apiFetch<{ id: number; agency_id: number; name: string; color: string }[]>("/tags"),
+  createTag: (name: string, color?: string) =>
+    apiFetch<{ id: number; agency_id: number; name: string; color: string }>("/tags", {
+      method: "POST",
+      body: JSON.stringify({ name, color: color ?? "#5e6ad2" }),
+    }),
+  deleteTag: (tagId: number) =>
+    apiFetch<{ ok: boolean }>(`/tags/${tagId}`, { method: "DELETE" }),
+  seekerTags: (seekerId: number) =>
+    apiFetch<{ id: number; agency_id: number; name: string; color: string }[]>(`/tags/seeker/${seekerId}`),
+  attachTag: (seekerId: number, tagId: number) =>
+    apiFetch<{ ok: boolean }>(`/tags/seeker/${seekerId}/attach?tag_id=${tagId}`, { method: "POST" }),
+  detachTag: (seekerId: number, tagId: number) =>
+    apiFetch<{ ok: boolean }>(`/tags/seeker/${seekerId}/detach?tag_id=${tagId}`, { method: "POST" }),
+  // Notes
+  notes: (entityType: string, entityId: number) =>
+    apiFetch<{ id: number; agency_id: number; user_id: number; entity_type: string; entity_id: number; content: string; is_pinned: boolean; created_at: string; updated_at: string }[]>(
+      `/notes?entity_type=${entityType}&entity_id=${entityId}`,
+    ),
+  createNote: (entityType: string, entityId: number, content: string) =>
+    apiFetch<{ id: number; agency_id: number; user_id: number; entity_type: string; entity_id: number; content: string; is_pinned: boolean; created_at: string; updated_at: string }>("/notes", {
+      method: "POST",
+      body: JSON.stringify({ entity_type: entityType, entity_id: entityId, content }),
+    }),
+  deleteNote: (noteId: number) =>
+    apiFetch<{ ok: boolean }>(`/notes/${noteId}`, { method: "DELETE" }),
+  // Notifications
+  notifications: (unreadOnly = false) =>
+    apiFetch<{ id: number; title: string; message: string; notification_type: string; is_read: boolean; read_at: string | null; related_entity_type: string | null; related_entity_id: number | null; action_url: string | null; created_at: string }[]>(
+      `/notifications${unreadOnly ? "?unread_only=true" : ""}`,
+    ),
+  unreadCount: () => apiFetch<{ count: number }>("/notifications/unread-count"),
+  markNotificationRead: (id: number) =>
+    apiFetch<{ ok: boolean }>(`/notifications/${id}/read`, { method: "PATCH" }),
+  markAllNotificationsRead: () =>
+    apiFetch<{ ok: boolean }>("/notifications/read-all", { method: "POST" }),
+  // Audit
   auditLogs: (params = "") =>
     apiFetch<{ id: number; action: string; user_id: number; entity_type: string; entity_id: number; meta: unknown; ip: string; created_at: string }[]>(`/audit${params}`),
   auditStats: () =>
@@ -233,4 +292,35 @@ export const api = {
     apiFetch<{ ok: boolean }>("/messaging/whatsapp", { method: "POST", body: JSON.stringify({ to_phone, text }) }),
   sendTelegram: (chat_id: string, text: string) =>
     apiFetch<{ ok: boolean }>("/messaging/telegram", { method: "POST", body: JSON.stringify({ chat_id, text }) }),
+  // Settings
+  getSettings: () => apiFetch<AgencySettings>("/settings"),
+  updateSettings: (data: Record<string, unknown>) =>
+    apiFetch<AgencySettings>("/settings", { method: "PATCH", body: JSON.stringify(data) }),
+  // Team
+  updateTeamMember: (id: number, data: Record<string, unknown>) =>
+    apiFetch<TeamMember>(`/auth/users/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  resetPassword: (id: number) =>
+    apiFetch<{ temp_password: string }>(`/auth/users/${id}/reset-password`, { method: "POST" }),
+  // Interviews
+  interviews: (params = "") => apiFetch<Interview[]>(`/interviews${params}`),
+  createInterview: (data: Record<string, unknown>) =>
+    apiFetch<Interview>("/interviews", { method: "POST", body: JSON.stringify(data) }),
+  updateInterview: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Interview>(`/interviews/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  cancelInterview: (id: number) =>
+    apiFetch<Interview>(`/interviews/${id}/cancel`, { method: "PATCH" }),
+  // Clients (CRUD)
+  createClient: (data: Record<string, unknown>) =>
+    apiFetch<Client>("/contracts/clients", { method: "POST", body: JSON.stringify(data) }),
+  updateClient: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Client>(`/contracts/clients/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteClient: (id: number) =>
+    apiFetch<void>(`/contracts/clients/${id}`, { method: "DELETE" }),
+  deleteInterview: (id: number) =>
+    apiFetch<void>(`/interviews/${id}`, { method: "DELETE" }),
+  updateNote: (id: number, data: Record<string, unknown>) =>
+    apiFetch<{ id: number; agency_id: number; user_id: number; entity_type: string; entity_id: number; content: string; is_pinned: boolean; created_at: string; updated_at: string }>(`/notes/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  team: () => apiFetch<TeamMember[]>("/auth/users"),
+  dashboardEnhanced: () => apiFetch<EnhancedDashboard>("/billing/dashboard/enhanced"),
+  dashboardTimeline: (days?: number) => apiFetch<TimelinePoint[]>(`/billing/dashboard/timeline${days ? `?days=${days}` : ""}`),
 };

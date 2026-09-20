@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-import { fetchMe, logout } from "@/lib/client";
+import { fetchMe, logout, api } from "@/lib/client";
 import type { Session } from "@/lib/types";
 
 interface AppContextValue {
@@ -21,6 +21,8 @@ const NAV: Array<{ href: string; label: string; icon: string; perm?: string }> =
   { href: "/pipeline", label: "Matching & Submissions", icon: "◈", perm: "matches.read" },
   { href: "/contracts", label: "Employer Contracts", icon: "▣", perm: "contracts.read" },
   { href: "/seekers", label: "Talent Pool", icon: "◉", perm: "seekers.read" },
+  { href: "/clients", label: "Clients", icon: "🏢", perm: "contracts.read" },
+  { href: "/interviews", label: "Interviews", icon: "📅", perm: "matches.read" },
   { href: "/scrapers", label: "Job & Candidate Scrapers", icon: "🔍", perm: "seekers.read" },
   { href: "/import", label: "Bulk Import", icon: "📥", perm: "seekers.write" },
   { href: "/hitl", label: "HITL Confidence Gate", icon: "⚠", perm: "hitl.read" },
@@ -28,6 +30,9 @@ const NAV: Array<{ href: string; label: string; icon: string; perm?: string }> =
   { href: "/tools", label: "Tools & Compliance", icon: "🛠", perm: "settings.write" },
   { href: "/audit", label: "Audit Log", icon: "📋", perm: "settings.write" },
   { href: "/dpdpa", label: "DPDPA Consent Ledger", icon: "⚖", perm: "settings.write" },
+  { href: "/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/team", label: "Team", icon: "👥", perm: "teams.manage" },
+  { href: "/settings", label: "Settings", icon: "⚙", perm: "settings.write" },
   { href: "/billing", label: "Pricing & ROI", icon: "₹", perm: "billing.read" },
 ];
 
@@ -36,6 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     fetchMe()
@@ -45,6 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           return;
         }
         setSession(s);
+        api.unreadCount().then((r) => setUnreadCount(r.count)).catch(() => {});
       })
       .catch(() => router.replace("/login"))
       .finally(() => setLoading(false));
@@ -100,6 +107,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 + Post Requisition
               </Link>
             ) : null}
+            <Link href="/notifications" className="relative text-[#8a8f98] hover:text-white transition p-1.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </Link>
             <div className="flex items-center space-x-2">
               <div className="text-right hidden sm:block">
                 <div className="text-xs font-medium text-[#f7f8f8]">{session.user.name}</div>

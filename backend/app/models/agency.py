@@ -8,15 +8,21 @@ from app.core.workflows import DEFAULT_WORKFLOW, workflow_config
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency_settings import AgencySettings
     from app.models.audit import AuditLog
     from app.models.client import Client
     from app.models.consent import ConsentRecord
     from app.models.contract import Contract
+    from app.models.email_message import EmailMessage
     from app.models.inbound import InboundMessage
+    from app.models.interview import Interview
     from app.models.job import Job
     from app.models.match import Match
+    from app.models.note import Note
+    from app.models.notification import Notification
     from app.models.seeker import Seeker
     from app.models.subscription import Subscription
+    from app.models.tag import Tag
     from app.models.user import User
 
 
@@ -43,6 +49,12 @@ class Agency(Base, TimestampMixin):
     audit_logs: Mapped[list["AuditLog"]] = relationship(back_populates="agency")
     consent_records: Mapped[list["ConsentRecord"]] = relationship(back_populates="agency")
     inbound_messages: Mapped[list["InboundMessage"]] = relationship(back_populates="agency")
+    interviews: Mapped[list["Interview"]] = relationship(back_populates="agency")
+    email_messages: Mapped[list["EmailMessage"]] = relationship(back_populates="agency")
+    notes: Mapped[list["Note"]] = relationship(back_populates="agency")
+    tags: Mapped[list["Tag"]] = relationship(back_populates="agency")
+    notifications: Mapped[list["Notification"]] = relationship(back_populates="agency")
+    settings_rel: Mapped[list["AgencySettings"]] = relationship(back_populates="agency")
 
     def ensure_workflow_config(self) -> dict[str, Any]:
         """Return the tenant's workflow blueprint, materialising it if unset."""

@@ -6,13 +6,20 @@ from app.api.v1 import (
     billing,
     consent,
     contracts,
+    dashboard_enhanced,
     hitl,
     inbound,
+    interviews,
     jobs,
     matches,
     messaging,
+    notes,
+    notifications,
     scrapers,
     seekers,
+    settings,
+    tags,
+    team,
     tools,
     workflows,
 )
@@ -32,3 +39,10 @@ api_router.include_router(scrapers.router)
 api_router.include_router(tools.router)
 api_router.include_router(messaging.router)
 api_router.include_router(audit_log.router)
+api_router.include_router(interviews.router)
+api_router.include_router(notes.router)
+api_router.include_router(tags.router)
+api_router.include_router(notifications.router)
+api_router.include_router(settings.router)
+api_router.include_router(team.router)
+api_router.include_router(dashboard_enhanced.router)
