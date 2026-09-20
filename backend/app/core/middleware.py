@@ -126,9 +126,13 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if not st.RL_ENABLED:
             return await call_next(request)
 
-        key = client_ip(request)
         if request.url.path in ("/health", "/ready") or request.url.path.endswith("/webhook"):
             return await call_next(request)
+
+        key = client_ip(request)
+        token_header = request.headers.get("authorization", "")
+        if token_header.startswith("Bearer "):
+            key = f"user:{token_header[7:32]}"
 
         rate = st.RL_REQUESTS_PER_MINUTE / 60.0
         if not self._hit(key, float(st.RL_BURST), rate):

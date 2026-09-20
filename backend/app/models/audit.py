@@ -7,6 +7,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.user import User
 
 
@@ -28,4 +29,5 @@ class AuditLog(Base, TimestampMixin):
     meta: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     ip: Mapped[str | None] = mapped_column(String(64), nullable=True)
 
+    agency: Mapped["Agency"] = relationship(back_populates="audit_logs")
     user: Mapped["User | None"] = relationship()

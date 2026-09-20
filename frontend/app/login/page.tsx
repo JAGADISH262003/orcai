@@ -84,9 +84,6 @@ export default function LoginPage() {
             Create an account
           </Link>
         </p>
-        <p className="text-center text-[10px] text-[#62666d] font-mono">
-          demo: owner@taproot.io / Orcai@12345
-        </p>
       </div>
     </div>
   );

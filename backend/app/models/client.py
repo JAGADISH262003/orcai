@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 from app.models.mixins import TimestampMixin
+
+if TYPE_CHECKING:
+    from app.models.agency import Agency
 
 
 class Client(Base, TimestampMixin):
@@ -17,4 +22,5 @@ class Client(Base, TimestampMixin):
     contact_phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
     notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
 
+    agency: Mapped["Agency"] = relationship(back_populates="clients")
     contracts = relationship("Contract", back_populates="client", cascade="all, delete-orphan")

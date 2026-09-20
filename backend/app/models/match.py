@@ -15,6 +15,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.contract import Contract
     from app.models.seeker import Seeker
     from app.models.user import User
@@ -43,6 +44,7 @@ class Match(Base, TimestampMixin):
     reviewed_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    agency: Mapped["Agency"] = relationship(back_populates="matches")
     contract: Mapped["Contract"] = relationship(back_populates="matches")
     seeker: Mapped["Seeker"] = relationship(back_populates="matches")
     reviewer: Mapped[Optional["User"]] = relationship()

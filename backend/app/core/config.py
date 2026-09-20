@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     TELEGRAM_SECRET_TOKEN: str | None = None  # X-Telegram-Bot-Api-Secret-Token
 
     # --- CORS / security -------------------------------------------------
-    BACKEND_CORS_ORIGINS: str = "http://localhost:3000"
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000"]
     SECURITY_HEADERS: bool = True
     MAX_UPLOAD_BYTES: int = 5 * 1024 * 1024  # 5 MB
 
@@ -104,10 +104,12 @@ class Settings(BaseSettings):
             if self.PORTAL_SECRET_KEY in _INSECURE_DEFAULTS:
                 raise ValueError("PORTAL_SECRET_KEY must be changed from its default value in production")
 
-    @field_validator("BACKEND_CORS_ORIGINS")
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
-    def split_origins(cls, v: str) -> list[str]:
-        return [o.strip() for o in v.split(",") if o.strip()]
+    def split_origins(cls, v):
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
 
     @property
     def cors_origins(self) -> list[str]:

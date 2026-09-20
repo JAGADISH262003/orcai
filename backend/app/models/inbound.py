@@ -8,6 +8,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.seeker import Seeker
 
 
@@ -29,4 +30,5 @@ class InboundMessage(Base, TimestampMixin):
     note: Mapped[str | None] = mapped_column(String(300), nullable=True)
     received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
+    agency: Mapped["Agency"] = relationship(back_populates="inbound_messages")
     seeker: Mapped["Seeker | None"] = relationship()

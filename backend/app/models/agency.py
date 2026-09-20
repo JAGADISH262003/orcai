@@ -8,6 +8,15 @@ from app.core.workflows import DEFAULT_WORKFLOW, workflow_config
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.audit import AuditLog
+    from app.models.client import Client
+    from app.models.consent import ConsentRecord
+    from app.models.contract import Contract
+    from app.models.inbound import InboundMessage
+    from app.models.job import Job
+    from app.models.match import Match
+    from app.models.seeker import Seeker
+    from app.models.subscription import Subscription
     from app.models.user import User
 
 
@@ -19,13 +28,21 @@ class Agency(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(80), unique=True, index=True)
     tier: Mapped[str] = mapped_column(String(20), default="starter")
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    # Multi-workflow engine: which recruiting blueprint drives this tenant.
     workflow_type: Mapped[str] = mapped_column(
         String(40), default=DEFAULT_WORKFLOW, server_default=DEFAULT_WORKFLOW
     )
     workflow_config: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
 
     users: Mapped[list["User"]] = relationship(back_populates="agency")
+    clients: Mapped[list["Client"]] = relationship(back_populates="agency")
+    contracts: Mapped[list["Contract"]] = relationship(back_populates="agency")
+    seekers: Mapped[list["Seeker"]] = relationship(back_populates="agency")
+    matches: Mapped[list["Match"]] = relationship(back_populates="agency")
+    jobs: Mapped[list["Job"]] = relationship(back_populates="agency")
+    subscriptions: Mapped[list["Subscription"]] = relationship(back_populates="agency")
+    audit_logs: Mapped[list["AuditLog"]] = relationship(back_populates="agency")
+    consent_records: Mapped[list["ConsentRecord"]] = relationship(back_populates="agency")
+    inbound_messages: Mapped[list["InboundMessage"]] = relationship(back_populates="agency")
 
     def ensure_workflow_config(self) -> dict[str, Any]:
         """Return the tenant's workflow blueprint, materialising it if unset."""

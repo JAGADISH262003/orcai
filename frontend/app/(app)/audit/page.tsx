@@ -50,41 +50,37 @@ export default function AuditPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">Audit Log</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#f7f8f8]">Audit Log</h1>
+        <p className="text-xs text-[#8a8f98] mt-1">Track all user actions and system events across the platform.</p>
+      </div>
 
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white border rounded p-3 text-center">
-            <p className="text-2xl font-bold text-blue-600">{stats.total_events}</p>
-            <p className="text-xs text-gray-500">Total Events</p>
+          <div className="linear-card p-4 text-center">
+            <p className="text-2xl font-bold text-[#5e6ad2]">{stats.total_events}</p>
+            <p className="text-[11px] text-[#8a8f98]">Total Events</p>
           </div>
-          <div className="bg-white border rounded p-3 text-center">
-            <p className="text-2xl font-bold text-green-600">{stats.events_this_week}</p>
-            <p className="text-xs text-gray-500">This Week</p>
+          <div className="linear-card p-4 text-center">
+            <p className="text-2xl font-bold text-green-400">{stats.events_this_week}</p>
+            <p className="text-[11px] text-[#8a8f98]">This Week</p>
           </div>
-          <div className="bg-white border rounded p-3 text-center">
-            <p className="text-2xl font-bold text-purple-600">{Object.keys(stats.by_action).length}</p>
-            <p className="text-xs text-gray-500">Unique Actions</p>
+          <div className="linear-card p-4 text-center">
+            <p className="text-2xl font-bold text-purple-400">{Object.keys(stats.by_action).length}</p>
+            <p className="text-[11px] text-[#8a8f98]">Unique Actions</p>
           </div>
         </div>
       )}
 
-      <div className="flex gap-4 items-center">
-        <label className="text-xs font-medium text-gray-500">Filter by action:</label>
-        <input
-          className="border rounded px-2 py-1 text-sm"
-          placeholder="e.g. seeker.create"
-          value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value)}
-        />
+      <div className="flex gap-4 items-center flex-wrap">
+        <label className="text-[11px] font-medium text-[#8a8f98]">Filter by action:</label>
+        <input className="linear-input px-3 py-1.5 text-xs" placeholder="e.g. seeker.create" value={actionFilter} onChange={(e) => setActionFilter(e.target.value)} />
         {stats && (
-          <div className="flex gap-2 flex-wrap text-xs">
+          <div className="flex gap-2 flex-wrap">
             {Object.entries(stats.by_action).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([action, count]) => (
-              <button
-                key={action}
-                className={`px-2 py-0.5 rounded border text-xs ${actionFilter === action ? "bg-blue-100 border-blue-300" : "hover:bg-gray-50"}`}
-                onClick={() => setActionFilter(actionFilter === action ? "" : action)}
-              >
+              <button key={action}
+                className={`px-2 py-0.5 rounded text-[10px] transition ${actionFilter === action ? "bg-[#5e6ad2]/20 text-[#5e6ad2] border border-[#5e6ad2]/30" : "text-[#8a8f98] hover:text-[#d0d6e0] bg-white/[0.04]"}`}
+                onClick={() => setActionFilter(actionFilter === action ? "" : action)}>
                 {action} ({count})
               </button>
             ))}
@@ -93,9 +89,9 @@ export default function AuditPage() {
       </div>
 
       {logs.length > 0 ? (
-        <div className="overflow-x-auto border rounded">
-          <table className="min-w-full text-sm">
-            <thead className="bg-gray-50 text-left text-xs text-gray-500">
+        <div className="linear-card overflow-x-auto">
+          <table className="min-w-full text-xs">
+            <thead className="text-left text-[10px] text-[#8a8f98] border-b border-white/[0.06]">
               <tr>
                 <th className="px-3 py-2 font-medium">Time</th>
                 <th className="px-3 py-2 font-medium">Action</th>
@@ -105,17 +101,17 @@ export default function AuditPage() {
                 <th className="px-3 py-2 font-medium">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-white/[0.04]">
               {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 text-xs text-gray-500 whitespace-nowrap">
+                <tr key={log.id} className="hover:bg-white/[0.02]">
+                  <td className="px-3 py-2 text-[10px] text-[#8a8f98] whitespace-nowrap">
                     {log.created_at ? new Date(log.created_at).toLocaleString() : "—"}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs">{log.action}</td>
-                  <td className="px-3 py-2 text-xs">{log.entity_type}#{log.entity_id ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs">{log.user_id ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs text-gray-400">{log.ip ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs text-gray-400 max-w-xs truncate">
+                  <td className="px-3 py-2 font-mono text-[#d0d6e0]">{log.action}</td>
+                  <td className="px-3 py-2 text-[#d0d6e0]">{log.entity_type}#{log.entity_id ?? "—"}</td>
+                  <td className="px-3 py-2 text-[#d0d6e0]">{log.user_id ?? "—"}</td>
+                  <td className="px-3 py-2 text-[#8a8f98]">{log.ip ?? "—"}</td>
+                  <td className="px-3 py-2 text-[#8a8f98] max-w-xs truncate">
                     {log.meta ? JSON.stringify(log.meta) : "—"}
                   </td>
                 </tr>

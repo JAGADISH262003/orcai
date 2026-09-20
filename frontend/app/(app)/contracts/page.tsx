@@ -194,9 +194,13 @@ export default function ContractsPage() {
                   </button>
                   <button
                     onClick={async () => {
-                      const job = await api.runMatching(c.id);
-                      await pollJob(job.id);
-                      await load();
+                      try {
+                        const job = await api.runMatching(c.id);
+                        await pollJob(job.id);
+                        await load();
+                      } catch (err) {
+                        setError(err instanceof Error ? err.message : "Matching failed");
+                      }
                     }}
                     className="px-2 py-1 rounded bg-brand/20 hover:bg-brand/30 text-[10px] text-brand-light"
                   >

@@ -8,6 +8,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.client import Client
     from app.models.match import Match
 
@@ -38,5 +39,6 @@ class Contract(Base, TimestampMixin):
     ai_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     parse_method: Mapped[str | None] = mapped_column(String(30), nullable=True)  # ai|deterministic
 
+    agency: Mapped["Agency"] = relationship(back_populates="contracts")
     client: Mapped[Optional["Client"]] = relationship(back_populates="contracts")
     matches: Mapped[list["Match"]] = relationship(back_populates="contract", cascade="all, delete-orphan")

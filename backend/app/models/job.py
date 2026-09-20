@@ -32,4 +32,4 @@ class Job(Base, TimestampMixin):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    agency: Mapped["Agency"] = relationship()
+    agency: Mapped["Agency"] = relationship(back_populates="jobs")

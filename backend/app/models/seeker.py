@@ -7,6 +7,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.consent import ConsentRecord
     from app.models.match import Match
 
@@ -44,5 +45,6 @@ class Seeker(Base, TimestampMixin):
     is_verified: Mapped[bool] = mapped_column(default=False)
     is_active: Mapped[bool] = mapped_column(default=True)
 
+    agency: Mapped["Agency"] = relationship(back_populates="seekers")
     matches: Mapped[list["Match"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")
     consents: Mapped[list["ConsentRecord"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")

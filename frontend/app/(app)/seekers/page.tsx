@@ -137,21 +137,18 @@ export default function SeekersPage() {
       <div className="flex flex-wrap gap-3">
         <input
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (!e.target.value) load();
-          }}
+          onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && load()}
-          placeholder="Search by name, headline, email…"
+          placeholder="Search by name, headline, email..."
           className="linear-input px-3 py-1.5 text-xs w-72"
         />
-        <select value={visa} onChange={(e) => { setVisa(e.target.value); if (e.target.value) load(); }} className="linear-input px-3 py-1.5 text-xs">
+        <select value={visa} onChange={(e) => setVisa(e.target.value)} className="linear-input px-3 py-1.5 text-xs">
           <option value="">All visas</option>
           {["H1B", "OPT", "GC EAD", "L1", "TN", "Citizen"].map((v) => (
             <option key={v} value={v}>{v}</option>
           ))}
         </select>
-        <button onClick={load} className="px-3 py-1.5 rounded bg-white/[0.06] hover:bg-white/[0.1] text-xs text-[#d0d6e0]">
+        <button onClick={load} className="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition">
           Search
         </button>
       </div>

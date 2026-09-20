@@ -8,6 +8,7 @@ from app.core.database import Base
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.agency import Agency
     from app.models.seeker import Seeker
 
 
@@ -26,4 +27,5 @@ class ConsentRecord(Base, TimestampMixin):
     withdrawn_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     erased_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    agency: Mapped["Agency"] = relationship(back_populates="consent_records")
     seeker: Mapped["Seeker"] = relationship(back_populates="consents")

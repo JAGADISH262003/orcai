@@ -83,13 +83,16 @@ export default function ScrapersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">Job & Candidate Scrapers</h1>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-[#f7f8f8]">Job & Candidate Scrapers</h1>
+        <p className="text-xs text-[#8a8f98] mt-1">Search external sources for job postings and candidate profiles.</p>
+      </div>
 
-      <div className="flex gap-2 border-b pb-2">
+      <div className="flex gap-2 border-b border-white/[0.06] pb-2">
         {(["jobs", "candidates"] as const).map((t) => (
           <button
             key={t}
-            className={`px-3 py-1 text-sm font-medium rounded-t ${tab === t ? "bg-blue-600 text-white" : "text-gray-600 hover:bg-gray-100"}`}
+            className={`px-3 py-1 text-xs font-medium rounded transition ${tab === t ? "bg-[#5e6ad2] text-white" : "text-[#8a8f98] hover:text-[#d0d6e0] hover:bg-white/[0.04]"}`}
             onClick={() => { setTab(t); setSource("google"); setResults([]); }}
           >
             {t === "jobs" ? "Job Search" : "Candidate Search"}
@@ -99,61 +102,35 @@ export default function ScrapersPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Source</label>
-          <select
-            className="w-full border rounded px-2 py-1.5 text-sm"
-            value={source}
-            onChange={(e) => setSource(e.target.value as Source)}
-          >
-            {sources.map((s) => (
-              <option key={s.value} value={s.value}>{s.label}</option>
-            ))}
+          <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Source</label>
+          <select className="linear-input w-full px-3 py-1.5 text-xs" value={source} onChange={(e) => setSource(e.target.value as Source)}>
+            {sources.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Query</label>
-          <input
-            className="w-full border rounded px-2 py-1.5 text-sm"
-            placeholder={tab === "jobs" ? "e.g. senior python developer" : "e.g. john react developer"}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+          <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Query</label>
+          <input className="linear-input w-full px-3 py-1.5 text-xs" placeholder={tab === "jobs" ? "e.g. senior python developer" : "e.g. john react developer"} value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Location</label>
-          <input
-            className="w-full border rounded px-2 py-1.5 text-sm"
-            placeholder="e.g. Bangalore, India"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
+          <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Location</label>
+          <input className="linear-input w-full px-3 py-1.5 text-xs" placeholder="e.g. Bangalore, India" value={location} onChange={(e) => setLocation(e.target.value)} />
         </div>
         {selected?.needsUrl && (
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">URL</label>
-            <input
-              className="w-full border rounded px-2 py-1.5 text-sm"
-              placeholder="https://..."
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
+            <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">URL</label>
+            <input className="linear-input w-full px-3 py-1.5 text-xs" placeholder="https://..." value={url} onChange={(e) => setUrl(e.target.value)} />
           </div>
         )}
         {selected?.needsFeed && (
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Feed URL</label>
-            <input
-              className="w-full border rounded px-2 py-1.5 text-sm"
-              placeholder="https://...rss"
-              value={feedUrl}
-              onChange={(e) => setFeedUrl(e.target.value)}
-            />
+            <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Feed URL</label>
+            <input className="linear-input w-full px-3 py-1.5 text-xs" placeholder="https://...rss" value={feedUrl} onChange={(e) => setFeedUrl(e.target.value)} />
           </div>
         )}
         {tab === "jobs" && (
           <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1">Country</label>
-            <select className="w-full border rounded px-2 py-1.5 text-sm" value={country} onChange={(e) => setCountry(e.target.value)}>
+            <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Country</label>
+            <select className="linear-input w-full px-3 py-1.5 text-xs" value={country} onChange={(e) => setCountry(e.target.value)}>
               <option value="us">US</option>
               <option value="in">India</option>
               <option value="uk">UK</option>
@@ -162,40 +139,21 @@ export default function ScrapersPage() {
           </div>
         )}
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Max Results</label>
-          <input
-            type="number"
-            className="w-full border rounded px-2 py-1.5 text-sm"
-            value={maxResults}
-            onChange={(e) => setMaxResults(Number(e.target.value))}
-            min={1}
-            max={100}
-          />
+          <label className="block text-[11px] font-medium text-[#8a8f98] mb-1">Max Results</label>
+          <input type="number" className="linear-input w-full px-3 py-1.5 text-xs" value={maxResults} onChange={(e) => setMaxResults(Number(e.target.value))} min={1} max={100} />
         </div>
       </div>
 
       <div className="flex gap-3">
-        <button
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50"
-          onClick={() => handleScrape(false)}
-          disabled={loading || !query}
-        >
-          Run Now
-        </button>
-        <button
-          className="px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded hover:bg-gray-700 disabled:opacity-50"
-          onClick={() => handleScrape(true)}
-          disabled={loading || !query}
-        >
-          Run Background
-        </button>
+        <button className="bg-brand hover:bg-brand-hover text-white text-xs font-medium px-3.5 py-1.5 rounded-md transition shadow disabled:opacity-50" onClick={() => handleScrape(false)} disabled={loading || !query}>Run Now</button>
+        <button className="linear-card px-3.5 py-1.5 text-xs font-medium text-[#d0d6e0] hover:text-white transition disabled:opacity-50" onClick={() => handleScrape(true)} disabled={loading || !query}>Run Background</button>
       </div>
 
       {asyncJob && (
-        <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm">
-          Job #{asyncJob.id} — status: <span className="font-mono">{asyncJob.status}</span>
-          {asyncJob.status === "done" && " ✓ Done"}
-          {asyncJob.status === "failed" && <span className="text-red-600"> ✗ Failed</span>}
+        <div className="linear-card p-3 text-xs text-[#d0d6e0]">
+          Job #{asyncJob.id} — status: <span className="font-mono text-[#8a8f98]">{asyncJob.status}</span>
+          {asyncJob.status === "done" && <span className="text-green-400 ml-2">Done</span>}
+          {asyncJob.status === "failed" && <span className="text-red-400 ml-2">Failed</span>}
         </div>
       )}
 
@@ -204,21 +162,19 @@ export default function ScrapersPage() {
 
       {!loading && results.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-gray-600 mb-2">{results.length} results</h2>
-          <div className="overflow-x-auto border rounded">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50 text-left text-xs text-gray-500">
+          <p className="text-[11px] text-[#8a8f98] font-medium mb-2">{results.length} results</p>
+          <div className="linear-card overflow-x-auto">
+            <table className="min-w-full text-xs">
+              <thead className="text-left text-[10px] text-[#8a8f98] border-b border-white/[0.06]">
                 <tr>
-                  {Object.keys(results[0]).map((k) => (
-                    <th key={k} className="px-3 py-2 font-medium">{k}</th>
-                  ))}
+                  {Object.keys(results[0]).map((k) => (<th key={k} className="px-3 py-2 font-medium">{k}</th>))}
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-white/[0.04]">
                 {results.map((row, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
+                  <tr key={i} className="hover:bg-white/[0.02]">
                     {Object.keys(results[0]).map((k) => (
-                      <td key={k} className="px-3 py-2 max-w-xs truncate">{String((row as Record<string, unknown>)[k] ?? "")}</td>
+                      <td key={k} className="px-3 py-2 text-[#d0d6e0] max-w-xs truncate">{String((row as Record<string, unknown>)[k] ?? "")}</td>
                     ))}
                   </tr>
                 ))}
@@ -228,9 +184,7 @@ export default function ScrapersPage() {
         </div>
       )}
 
-      {!loading && results.length === 0 && !error && (
-        <EmptyState text="Configure search parameters and click Run" />
-      )}
+      {!loading && results.length === 0 && !error && <EmptyState text="Configure search parameters and click Run" />}
     </div>
   );
 }
