@@ -3,23 +3,7 @@
 import { useEffect, useState } from "react";
 import { EmptyState, ErrorBanner, Loading } from "@/components/UI";
 import { api } from "@/lib/client";
-
-interface AuditEntry {
-  id: number;
-  action: string;
-  user_id: number;
-  entity_type: string;
-  entity_id: number;
-  meta: unknown;
-  ip: string;
-  created_at: string;
-}
-
-interface AuditStats {
-  total_events: number;
-  events_this_week: number;
-  by_action: Record<string, number>;
-}
+import type { AuditEntry, AuditStats } from "@/lib/types";
 
 export default function AuditPage() {
   const [logs, setLogs] = useState<AuditEntry[]>([]);

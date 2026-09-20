@@ -95,7 +95,7 @@ export default function InterviewsPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load, filterStatus, filterSeeker, filterContract]);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();

@@ -5,19 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { EmptyState, ErrorBanner, Loading } from "@/components/UI";
 import { api } from "@/lib/client";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  notification_type: string;
-  is_read: boolean;
-  read_at: string | null;
-  related_entity_type: string | null;
-  related_entity_id: number | null;
-  action_url: string | null;
-  created_at: string;
-}
+import type { AppNotification } from "@/lib/types";
 
 const TYPE_STYLES: Record<string, { icon: string; color: string; bg: string }> = {
   info: { icon: "ℹ", color: "text-blue-400", bg: "bg-blue-500/10" },
@@ -39,7 +27,7 @@ function getDateGroup(dateStr: string): "today" | "yesterday" | "earlier" {
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -83,16 +71,17 @@ export default function NotificationsPage() {
     }
   }
 
-  function handleClick(n: Notification) {
+  function handleClick(n: AppNotification) {
     if (!n.is_read) markRead(n.id);
     if (n.action_url) router.push(n.action_url);
   }
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  const grouped: { label: string; key: string; items: Notification[] }[] = [];
-  const groups: Record<string, Notification[]> = {};
+  const grouped: { label: string; key: string; items: AppNotification[] }[] = [];
+  const groups: Record<string, AppNotification[]> = {};
   for (const n of notifications) {
+    if (!n.created_at) continue;
     const g = getDateGroup(n.created_at);
     if (!groups[g]) groups[g] = [];
     groups[g].push(n);
@@ -180,7 +169,7 @@ export default function NotificationsPage() {
                           {!n.is_read && <div className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />}
                         </div>
                         <p className="text-[11px] text-[#8a8f98] mt-0.5 line-clamp-2">{n.message}</p>
-                        <p className="text-[10px] text-[#62666d] mt-1">{new Date(n.created_at).toLocaleString()}</p>
+                        <p className="text-[10px] text-[#62666d] mt-1">{n.created_at ? new Date(n.created_at).toLocaleString() : ""}</p>
                       </div>
                       {n.action_url && (
                         <span className="text-[10px] text-brand-light shrink-0 mt-1">View →</span>

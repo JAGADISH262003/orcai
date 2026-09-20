@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { ErrorBanner, Loading, EmptyState } from "@/components/UI";
 import { api } from "@/lib/client";
+import type { ActivityEntry } from "@/lib/types";
 
 const ENTITY_TYPES = ["all", "seeker", "contract", "match", "client", "interview"];
 
@@ -30,16 +31,6 @@ function timeAgo(dateStr: string): string {
   if (days === 1) return "yesterday";
   if (days < 30) return `${days}d ago`;
   return new Date(dateStr).toLocaleDateString();
-}
-
-interface ActivityEntry {
-  id: number;
-  user_name: string;
-  action: string;
-  entity_type: string;
-  entity_id: number;
-  description: string;
-  created_at: string;
 }
 
 export default function ActivityPage() {

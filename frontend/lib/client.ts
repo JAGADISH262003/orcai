@@ -1,10 +1,18 @@
 import type {
+  ActivityEntry,
   AgencySettings,
+  AuditEntry,
+  Campaign,
+  CampaignAnalytics,
+  CampaignRecipient,
   Client,
+  ClientFeedback,
+  ClientPortalSessionOut,
   ConsentRecord,
   Contract,
   Dashboard,
-  EnhancedDashboard,
+  EmailMessage,
+  EmailTemplate,
   FunnelData,
   FunnelStage,
   InboundMessage,
@@ -32,6 +40,8 @@ import type {
   TimelinePoint,
   PipelineVelocityData,
   PipelineStageEntry,
+  Webhook,
+  WebhookDelivery,
   WorkflowCatalog,
 } from "@/lib/types";
 
@@ -153,7 +163,7 @@ export async function logout(): Promise<void> {
   }
 }
 
-function toQuery(params?: Record<string, any>): string {
+function toQuery(params?: Record<string, string | number | boolean | undefined>): string {
   if (!params) return '';
   const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
   return new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
@@ -232,9 +242,6 @@ export const api = {
   // Enrichment
   enrichCandidate: (data: Record<string, unknown>) =>
     apiFetch<{ sources: string[]; data: Record<string, unknown> }>("/tools/enrich", { method: "POST", body: JSON.stringify(data) }),
-  // Portal
-  portalToken: (seekerId: number) =>
-    apiFetch<{ token: string; url: string }>(`/tools/portal/${seekerId}/token`, { method: "GET" }),
   // Artifacts
   misReport: () =>
     apiFetch<{ content: string; filename: string }>("/tools/artifacts/mis"),
@@ -301,14 +308,9 @@ export const api = {
     apiFetch<{ ok: boolean }>("/notifications/read-all", { method: "POST" }),
   // Audit
   auditLogs: (params = "") =>
-    apiFetch<{ id: number; action: string; user_id: number; entity_type: string; entity_id: number; meta: unknown; ip: string; created_at: string }[]>(`/audit${params}`),
+    apiFetch<AuditEntry[]>(`/audit${params}`),
   auditStats: () =>
     apiFetch<{ total_events: number; events_this_week: number; by_action: Record<string, number> }>("/audit/stats"),
-  // Messaging
-  sendWhatsApp: (to_phone: string, text: string) =>
-    apiFetch<{ ok: boolean }>("/messaging/whatsapp", { method: "POST", body: JSON.stringify({ to_phone, text }) }),
-  sendTelegram: (chat_id: string, text: string) =>
-    apiFetch<{ ok: boolean }>("/messaging/telegram", { method: "POST", body: JSON.stringify({ chat_id, text }) }),
   // Settings
   getSettings: () => apiFetch<AgencySettings>("/settings"),
   updateSettings: (data: Record<string, unknown>) =>
@@ -338,8 +340,6 @@ export const api = {
   updateNote: (id: number, data: Record<string, unknown>) =>
     apiFetch<{ id: number; agency_id: number; user_id: number; entity_type: string; entity_id: number; content: string; is_pinned: boolean; created_at: string; updated_at: string }>(`/notes/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   team: () => apiFetch<TeamMember[]>("/auth/users"),
-  dashboardEnhanced: () => apiFetch<EnhancedDashboard>("/billing/dashboard/enhanced"),
-  dashboardTimeline: (days?: number) => apiFetch<TimelinePoint[]>(`/billing/dashboard/timeline${days ? `?days=${days}` : ""}`),
   // Email
   emailSend: (data: {
     to_email: string;
@@ -350,10 +350,10 @@ export const api = {
     template_vars?: Record<string, string>;
     related_entity_type?: string;
     related_entity_id?: number;
-  }) => apiFetch<any>("/email/send", { method: "POST", body: JSON.stringify(data) }),
+  }) => apiFetch<EmailMessage>("/email/send", { method: "POST", body: JSON.stringify(data) }),
   emailHistory: (params?: { status?: string; limit?: number; offset?: number }) =>
-    apiFetch<any[]>(`/email/history?${toQuery(params)}`),
-  emailTemplates: () => apiFetch<any[]>("/email/templates"),
+    apiFetch<EmailMessage[]>(`/email/history?${toQuery(params)}`),
+  emailTemplates: () => apiFetch<EmailTemplate[]>("/email/templates"),
   emailPreview: (data: {
     subject: string;
     body_html: string;
@@ -367,7 +367,7 @@ export const api = {
     action?: string;
     limit?: number;
     offset?: number;
-  }) => apiFetch<any[]>(`/activity?${toQuery(params)}`),
+  }) => apiFetch<ActivityEntry[]>(`/activity?${toQuery(params)}`),
   // Analytics
   analyticsFunnel: (days?: number) =>
     apiFetch<FunnelData>(`/analytics/funnel${days ? `?days=${days}` : ""}`),
@@ -377,8 +377,6 @@ export const api = {
     apiFetch<SourceROIData>(`/analytics/source-roi${days ? `?days=${days}` : ""}`),
   analyticsRevenue: (days?: number) =>
     apiFetch<RevenueData>(`/analytics/revenue${days ? `?days=${days}` : ""}`),
-  analyticsConsultantPerformance: (days?: number) =>
-    apiFetch<any>(`/analytics/consultant-performance${days ? `?days=${days}` : ""}`),
   analyticsSkillsDemand: () =>
     apiFetch<SkillsDemandData>("/analytics/skills-demand"),
   analyticsPipelineVelocity: (days?: number) =>
@@ -403,21 +401,18 @@ export const api = {
     apiFetch<void>(`/scorecards/${id}`, { method: "DELETE" }),
   scorecardSummary: (interviewId: number) =>
     apiFetch<ScorecardSummary>(`/scorecards/summary/${interviewId}`),
-  // SMS
-  sendSms: (to_phone: string, body: string) =>
-    apiFetch<{ ok: boolean }>("/messaging/sms", { method: "POST", body: JSON.stringify({ to_phone, body }) }),
   // Webhooks
-  webhooks: () => apiFetch<any[]>("/webhooks"),
+  webhooks: () => apiFetch<Webhook[]>("/webhooks"),
   createWebhook: (data: Record<string, unknown>) =>
-    apiFetch<any>("/webhooks", { method: "POST", body: JSON.stringify(data) }),
+    apiFetch<Webhook>("/webhooks", { method: "POST", body: JSON.stringify(data) }),
   updateWebhook: (id: number, data: Record<string, unknown>) =>
-    apiFetch<any>(`/webhooks/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    apiFetch<Webhook>(`/webhooks/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   deleteWebhook: (id: number) =>
     apiFetch<{ ok: boolean }>(`/webhooks/${id}`, { method: "DELETE" }),
   testWebhook: (id: number) =>
-    apiFetch<any>(`/webhooks/${id}/test`, { method: "POST" }),
+    apiFetch<{ ok: boolean }>(`/webhooks/${id}/test`, { method: "POST" }),
   webhookDeliveries: (id: number) =>
-    apiFetch<any[]>(`/webhooks/${id}/deliveries`),
+    apiFetch<WebhookDelivery[]>(`/webhooks/${id}/deliveries`),
   webhookEventTypes: () => apiFetch<{ events: string[] }>("/webhooks/event-types"),
 
   // Offers
@@ -442,8 +437,6 @@ export const api = {
     apiFetch<Offer>(`/offers/${id}/accept`, { method: "POST" }),
   withdrawOffer: (id: number) =>
     apiFetch<Offer>(`/offers/${id}/withdraw`, { method: "POST" }),
-  generateOfferLetter: (id: number) =>
-    apiFetch<{ html: string; text: string; title: string }>(`/offers/${id}/letter`),
   // AI Screening
   aiScreen: (contract_id: number, seeker_ids?: number[]) =>
     apiFetch<{ results: ScreeningResult[]; total: number }>("/ai/screen", {
@@ -458,57 +451,48 @@ export const api = {
       method: "POST", body: JSON.stringify({ job_title, skills, location }),
     }),
   aiSkillsTaxonomy: () => apiFetch<{ categories: Record<string, string[]>; all_skills: string[]; total_count: number }>("/ai/skills-taxonomy"),
-  aiSkillsGap: (contractId: number, seekerId: number) =>
-    apiFetch<any>(`/ai/skills-gap?contract_id=${contractId}&seeker_id=${seekerId}`, { method: "POST" }),
 
   // Client Portal
   clientPortalSessions: (clientId?: number) =>
-    apiFetch<any[]>(`/client-portal/sessions${clientId ? `?client_id=${clientId}` : ""}`),
+    apiFetch<ClientPortalSessionOut[]>(`/client-portal/sessions${clientId ? `?client_id=${clientId}` : ""}`),
   createClientPortalSession: (clientId: number, expiryDays: number) =>
-    apiFetch<any>("/client-portal/sessions", {
+    apiFetch<ClientPortalSessionOut>("/client-portal/sessions", {
       method: "POST",
       body: JSON.stringify({ client_id: clientId, expiry_days: expiryDays }),
     }),
-  clientPortalProfile: (token: string) =>
-    apiFetch<any>(`/client-portal/profile?token=${token}`),
   clientPortalFeedback: (clientId?: number, status?: string) => {
     const params = new URLSearchParams();
     if (clientId) params.set("client_id", String(clientId));
     if (status) params.set("status", status);
     const qs = params.toString();
-    return apiFetch<any[]>(`/client-portal/feedback${qs ? `?${qs}` : ""}`);
+    return apiFetch<ClientFeedback[]>(`/client-portal/feedback${qs ? `?${qs}` : ""}`);
   },
-  submitClientFeedback: (token: string, matchId: number, rating: number, feedbackText?: string) =>
-    apiFetch<any>(`/client-portal/feedback?token=${token}`, {
-      method: "POST",
-      body: JSON.stringify({ match_id: matchId, rating, feedback_text: feedbackText }),
-    }),
   // Campaigns
   campaigns: (status?: string, channel?: string) => {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
     if (channel) params.set("channel", channel);
     const qs = params.toString();
-    return apiFetch<any[]>(`/campaigns${qs ? `?${qs}` : ""}`);
+    return apiFetch<Campaign[]>(`/campaigns${qs ? `?${qs}` : ""}`);
   },
   createCampaign: (data: Record<string, unknown>) =>
-    apiFetch<any>("/campaigns", { method: "POST", body: JSON.stringify(data) }),
+    apiFetch<Campaign>("/campaigns", { method: "POST", body: JSON.stringify(data) }),
   updateCampaign: (id: number, data: Record<string, unknown>) =>
-    apiFetch<any>(`/campaigns/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+    apiFetch<Campaign>(`/campaigns/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
   deleteCampaign: (id: number) =>
     apiFetch<void>(`/campaigns/${id}`, { method: "DELETE" }),
   startCampaign: (id: number) =>
-    apiFetch<any>(`/campaigns/${id}/start`, { method: "POST" }),
+    apiFetch<Campaign>(`/campaigns/${id}/start`, { method: "POST" }),
   pauseCampaign: (id: number) =>
-    apiFetch<any>(`/campaigns/${id}/pause`, { method: "POST" }),
+    apiFetch<Campaign>(`/campaigns/${id}/pause`, { method: "POST" }),
   campaignRecipients: (id: number) =>
-    apiFetch<any[]>(`/campaigns/${id}/recipients`),
+    apiFetch<CampaignRecipient[]>(`/campaigns/${id}/recipients`),
   addCampaignRecipients: (id: number, seekerIds: number[]) =>
-    apiFetch<any[]>(`/campaigns/${id}/recipients/add`, {
+    apiFetch<CampaignRecipient[]>(`/campaigns/${id}/recipients/add`, {
       method: "POST",
       body: JSON.stringify({ seeker_ids: seekerIds }),
     }),
   campaignAnalytics: (id: number) =>
-    apiFetch<any>(`/campaigns/${id}/analytics`),
+    apiFetch<CampaignAnalytics>(`/campaigns/${id}/analytics`),
 
 };

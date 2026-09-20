@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { Badge } from "@/components/Badge";
 import { EmptyState, ErrorBanner, Loading, Modal } from "@/components/UI";
+import { useToast } from "@/components/Toast";
 import { api } from "@/lib/client";
 import type { Scorecard, ScorecardTemplate, ScorecardSummary } from "@/lib/types";
 
@@ -69,6 +70,7 @@ function RadarChart({ averages }: { averages: { criterion: string; avg_score: nu
 }
 
 export default function ScorecardsPage() {
+  const { toast } = useToast();
   const [view, setView] = useState<"templates" | "scorecards">("scorecards");
   const [templates, setTemplates] = useState<ScorecardTemplate[]>([]);
   const [scorecards, setScorecards] = useState<Scorecard[]>([]);
@@ -128,18 +130,28 @@ export default function ScorecardsPage() {
 
   async function saveTemplate() {
     const payload = { name: templateName, criteria: templateCriteria };
-    if (editTemplate) {
-      await api.updateScorecardTemplate(editTemplate.id, payload);
-    } else {
-      await api.createScorecardTemplate(payload);
+    try {
+      if (editTemplate) {
+        await api.updateScorecardTemplate(editTemplate.id, payload);
+      } else {
+        await api.createScorecardTemplate(payload);
+      }
+      toast("success", "Template saved");
+      setShowTemplateModal(false);
+      load();
+    } catch (e: unknown) {
+      toast("error", e instanceof Error ? e.message : "Failed to save");
     }
-    setShowTemplateModal(false);
-    load();
   }
 
   async function deleteTemplate(id: number) {
-    await api.deleteScorecardTemplate(id);
-    load();
+    try {
+      await api.deleteScorecardTemplate(id);
+      toast("success", "Template deleted");
+      load();
+    } catch (e: unknown) {
+      toast("error", e instanceof Error ? e.message : "Failed to delete");
+    }
   }
 
   function openCreateScorecard() {
@@ -173,18 +185,28 @@ export default function ScorecardsPage() {
       recommendation: scRecommendation || null,
       notes: scNotes || null,
     };
-    if (editScorecard) {
-      await api.updateScorecard(editScorecard.id, payload);
-    } else {
-      await api.createScorecard(payload);
+    try {
+      if (editScorecard) {
+        await api.updateScorecard(editScorecard.id, payload);
+      } else {
+        await api.createScorecard(payload);
+      }
+      toast("success", "Scorecard saved");
+      setShowScorecardModal(false);
+      load();
+    } catch (e: unknown) {
+      toast("error", e instanceof Error ? e.message : "Failed to save");
     }
-    setShowScorecardModal(false);
-    load();
   }
 
   async function deleteScorecard(id: number) {
-    await api.deleteScorecard(id);
-    load();
+    try {
+      await api.deleteScorecard(id);
+      toast("success", "Scorecard deleted");
+      load();
+    } catch (e: unknown) {
+      toast("error", e instanceof Error ? e.message : "Failed to delete");
+    }
   }
 
   async function loadSummary() {

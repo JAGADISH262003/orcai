@@ -4,41 +4,7 @@ import { useEffect, useState } from "react";
 
 import { EmptyState, ErrorBanner, Loading, Modal } from "@/components/UI";
 import { apiFetch } from "@/lib/client";
-
-interface Campaign {
-  id: number;
-  agency_id: number;
-  name: string;
-  description: string | null;
-  status: string;
-  channel: string;
-  template_subject: string | null;
-  template_body: string | null;
-  target_count: number;
-  sent_count: number;
-  opened_count: number;
-  replied_count: number;
-  created_at: string;
-}
-
-interface CampaignRecipient {
-  id: number;
-  seeker_id: number;
-  status: string;
-  sent_at: string | null;
-  opened_at: string | null;
-  replied_at: string | null;
-  response_text: string | null;
-  created_at: string;
-  seeker_name: string | null;
-  seeker_email: string | null;
-}
-
-interface Seeker {
-  id: number;
-  name: string | null;
-  email: string | null;
-}
+import type { Campaign, CampaignRecipient, Seeker } from "@/lib/types";
 
 interface CampaignForm {
   name: string;

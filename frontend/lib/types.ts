@@ -413,6 +413,24 @@ export interface SkillsDemandEntry {
   status: string;
 }
 
+export interface AuditEntry {
+  id: number;
+  agency_id?: number;
+  user_id: number;
+  action: string;
+  entity_type: string;
+  entity_id: string | number;
+  meta: Record<string, unknown> | unknown;
+  ip: string | null;
+  created_at: string | null;
+}
+
+export interface AuditStats {
+  total_events: number;
+  events_this_week: number;
+  by_action: Record<string, number>;
+}
+
 export interface SkillsDemandData {
   skills: SkillsDemandEntry[];
 }
@@ -521,4 +539,117 @@ export interface MarketIntelligence {
   top_locations: string[];
   trending_skills: string[];
   market_notes: string;
+}
+
+export interface EmailMessage {
+  id: number;
+  agency_id: number;
+  user_id: number;
+  to_email: string;
+  to_name: string | null;
+  subject: string;
+  body_html: string;
+  body_text: string | null;
+  template_name: string | null;
+  template_vars: Record<string, string> | null;
+  status: string;
+  sent_at: string;
+  related_entity_type: string | null;
+  related_entity_id: number | null;
+  created_at: string | null;
+}
+
+export interface EmailTemplate {
+  name: string;
+  description: string;
+  variables: string[];
+}
+
+export interface ActivityEntry {
+  id: number;
+  agency_id: number;
+  user_id: number;
+  action: string;
+  entity_type: string;
+  entity_id: number;
+  meta: Record<string, unknown>;
+  created_at: string;
+  user_name: string;
+  description: string;
+}
+
+export interface Webhook {
+  id: number;
+  agency_id: number;
+  name: string;
+  url: string;
+  events: string[];
+  is_active: boolean;
+  last_triggered_at: string | null;
+  failure_count: number;
+  created_at: string;
+}
+
+export interface WebhookDelivery {
+  id: number;
+  webhook_id: number;
+  event_type: string;
+  payload: Record<string, unknown>;
+  response_status: number | null;
+  response_body: string | null;
+  duration_ms: number | null;
+  delivered_at: string | null;
+}
+
+export interface SkillsGapResult {
+  matched_skills: string[];
+  missing_skills: string[];
+  extra_skills: string[];
+  coverage_percentage: number;
+  skill_severity: Record<string, string>;
+  recommendation: string;
+}
+
+export interface ClientPortalSessionOut {
+  id: number;
+  agency_id: number;
+  client_id: number;
+  token_hash: string;
+  expires_at: string;
+  is_active: boolean;
+  last_accessed_at: string | null;
+  created_at: string;
+  client_name: string | null;
+  token?: string;
+}
+
+export type ClientPortalSession = ClientPortalSessionOut;
+
+export interface ClientPortalProfile {
+  client: { id: number; name: string };
+  matches: Array<{
+    id: number;
+    score: number;
+    tier: string;
+    status: string;
+    seeker_name: string | null;
+    contract_title: string | null;
+  }>;
+}
+
+export interface CampaignAnalytics {
+  campaign_id: number;
+  name: string;
+  status: string;
+  channel: string;
+  target_count: number;
+  sent_count: number;
+  opened_count: number;
+  replied_count: number;
+  bounced_count: number;
+  unsubscribed_count: number;
+  open_rate: number;
+  reply_rate: number;
+  status_breakdown: Record<string, number>;
+  timeline: Array<{ date: string; sent: number; opened: number; replied: number }>;
 }

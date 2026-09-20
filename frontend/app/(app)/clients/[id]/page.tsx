@@ -6,40 +6,15 @@ import { useParams } from "next/navigation";
 import { ErrorBanner, Loading } from "@/components/UI";
 import { apiFetch } from "@/lib/client";
 import { api } from "@/lib/client";
-import type { Client } from "@/lib/types";
-
-interface PortalSession {
-  id: number;
-  client_id: number;
-  token_hash: string;
-  expires_at: string;
-  is_active: boolean;
-  last_accessed_at: string | null;
-  created_at: string;
-  client_name?: string | null;
-  token?: string;
-}
-
-interface Feedback {
-  id: number;
-  client_id: number;
-  match_id: number;
-  rating: number;
-  feedback_text: string | null;
-  status: string;
-  created_at: string;
-  client_name?: string | null;
-  match_seeker_name?: string | null;
-  match_contract_title?: string | null;
-}
+import type { Client, ClientPortalSessionOut, ClientFeedback } from "@/lib/types";
 
 export default function ClientDetailPage() {
   const params = useParams();
   const clientId = Number(params.id);
 
   const [client, setClient] = useState<Client | null>(null);
-  const [sessions, setSessions] = useState<PortalSession[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+  const [sessions, setSessions] = useState<ClientPortalSessionOut[]>([]);
+  const [feedbacks, setFeedbacks] = useState<ClientFeedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
@@ -59,9 +34,9 @@ export default function ClientDetailPage() {
         return;
       }
       setClient(found);
-      const sess = await apiFetch<PortalSession[]>("/client-portal/sessions?client_id=" + clientId);
+      const sess = await apiFetch<ClientPortalSessionOut[]>("/client-portal/sessions?client_id=" + clientId);
       setSessions(sess);
-      const fbs = await apiFetch<Feedback[]>("/client-portal/feedback?client_id=" + clientId);
+      const fbs = await apiFetch<ClientFeedback[]>("/client-portal/feedback?client_id=" + clientId);
       setFeedbacks(fbs);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load client details");
@@ -77,7 +52,7 @@ export default function ClientDetailPage() {
   async function generatePortalLink() {
     setGenerating(true);
     try {
-      const result = await apiFetch<PortalSession>(
+      const result = await apiFetch<ClientPortalSessionOut>(
         "/client-portal/sessions",
         {
           method: "POST",
@@ -86,7 +61,7 @@ export default function ClientDetailPage() {
       );
       const link = window.location.origin + "/portal/" + result.token;
       setPortalLink(link);
-      setSessions((prev) => [{ ...result, client_name: client?.name }, ...prev]);
+      setSessions((prev) => [{ ...result, client_name: client?.name ?? null }, ...prev]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to generate portal link");
     } finally {
