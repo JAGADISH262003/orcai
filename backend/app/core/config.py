@@ -97,6 +97,14 @@ class Settings(BaseSettings):
     PORTAL_SECRET_KEY: str = "portal-dev-secret"
     PORTAL_TOKEN_EXPIRE_HOURS: int = 72
 
+    # --- Twilio (SMS) ---------------------------------------------------
+    TWILIO_ACCOUNT_SID: str | None = None
+    TWILIO_AUTH_TOKEN: str | None = None
+    TWILIO_FROM_NUMBER: str | None = None
+
+    # --- Webhook dispatch -----------------------------------------------
+    WEBHOOK_MAX_RETRIES: int = 3
+
     def model_post_init(self, __context) -> None:
         if self.ENV == "production":
             if self.JWT_SECRET in _INSECURE_DEFAULTS:

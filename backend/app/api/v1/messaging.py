@@ -1,4 +1,4 @@
-"""Outbound messaging API: send WhatsApp and Telegram messages."""
+"""Outbound messaging API: send WhatsApp, Telegram, and SMS messages."""
 
 from typing import Annotated
 
@@ -22,6 +22,11 @@ class WhatsAppSendIn(BaseModel):
 class TelegramSendIn(BaseModel):
     chat_id: str
     text: str
+
+
+class SMSSendIn(BaseModel):
+    to_phone: str
+    body: str
 
 
 @router.post("/whatsapp")
@@ -50,5 +55,20 @@ def send_telegram(
     result = send_telegram_message(payload.chat_id, payload.text)
     audit(db, agency_id=agency.id, user_id=user.id, action="messaging.telegram",
           meta={"chat_id": payload.chat_id, "ok": result.get("ok")})
+    db.commit()
+    return result
+
+
+@router.post("/sms")
+def send_sms_endpoint(
+    payload: SMSSendIn,
+    db: DbDep,
+    agency: CurrentAgency,
+    user: Annotated[User, Depends(require_permission(Permission.MATCHES_WRITE))],
+):
+    from app.services.sms import send_sms
+    result = send_sms(payload.to_phone, payload.body)
+    audit(db, agency_id=agency.id, user_id=user.id, action="messaging.sms",
+          meta={"to": payload.to_phone, "ok": result.get("ok")})
     db.commit()
     return result

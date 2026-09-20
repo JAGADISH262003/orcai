@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from app.models.agency import Agency
     from app.models.consent import ConsentRecord
     from app.models.match import Match
+    from app.models.offer import Offer
 
 
 class Seeker(Base, TimestampMixin):
@@ -47,4 +48,5 @@ class Seeker(Base, TimestampMixin):
 
     agency: Mapped["Agency"] = relationship(back_populates="seekers")
     matches: Mapped[list["Match"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")
+    offers: Mapped[list["Offer"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")
     consents: Mapped[list["ConsentRecord"]] = relationship(back_populates="seeker", cascade="all, delete-orphan")

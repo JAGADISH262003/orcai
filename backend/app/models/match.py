@@ -17,6 +17,7 @@ from app.models.mixins import TimestampMixin
 if TYPE_CHECKING:
     from app.models.agency import Agency
     from app.models.contract import Contract
+    from app.models.offer import Offer
     from app.models.seeker import Seeker
     from app.models.user import User
 
@@ -48,6 +49,7 @@ class Match(Base, TimestampMixin):
     contract: Mapped["Contract"] = relationship(back_populates="matches")
     seeker: Mapped["Seeker"] = relationship(back_populates="matches")
     reviewer: Mapped[Optional["User"]] = relationship()
+    offers: Mapped[list["Offer"]] = relationship(back_populates="match")
 
     def mark_status(self, status: str) -> None:
         self.status = status

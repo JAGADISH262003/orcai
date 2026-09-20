@@ -5,16 +5,33 @@ import type {
   Contract,
   Dashboard,
   EnhancedDashboard,
+  FunnelData,
+  FunnelStage,
   InboundMessage,
   Interview,
   Job,
+  MarketIntelligence,
   Match,
+  Offer,
+  OfferPipelineColumn,
   Plan,
+  RevenueData,
+  ScreeningResult,
+  Scorecard,
+  ScorecardSummary,
+  ScorecardTemplate,
   Seeker,
   Session,
+  SkillsDemandData,
+  SkillsDemandEntry,
+  SourceROIData,
+  SourceROIEntry,
   Subscription,
   TeamMember,
+  TimeToFillData,
   TimelinePoint,
+  PipelineVelocityData,
+  PipelineStageEntry,
   WorkflowCatalog,
 } from "@/lib/types";
 
@@ -225,7 +242,7 @@ export const api = {
     apiFetch<{ content: string; filename: string }>("/tools/artifacts/hotlist"),
   rtr: (matchId: number) =>
     apiFetch<{ content: string; filename: string }>(`/tools/artifacts/rtr?match_id=${matchId}`),
-  offerLetter: (data: Record<string, unknown>) =>
+  artifactOfferLetter: (data: Record<string, unknown>) =>
     apiFetch<{ content: string; filename: string }>("/tools/artifacts/offer-letter", { method: "POST", body: JSON.stringify(data) }),
   // Compliance
   i9: (data: Record<string, unknown>) =>
@@ -351,4 +368,147 @@ export const api = {
     limit?: number;
     offset?: number;
   }) => apiFetch<any[]>(`/activity?${toQuery(params)}`),
+  // Analytics
+  analyticsFunnel: (days?: number) =>
+    apiFetch<FunnelData>(`/analytics/funnel${days ? `?days=${days}` : ""}`),
+  analyticsTimeToFill: (days?: number) =>
+    apiFetch<TimeToFillData>(`/analytics/time-to-fill${days ? `?days=${days}` : ""}`),
+  analyticsSourceROI: (days?: number) =>
+    apiFetch<SourceROIData>(`/analytics/source-roi${days ? `?days=${days}` : ""}`),
+  analyticsRevenue: (days?: number) =>
+    apiFetch<RevenueData>(`/analytics/revenue${days ? `?days=${days}` : ""}`),
+  analyticsConsultantPerformance: (days?: number) =>
+    apiFetch<any>(`/analytics/consultant-performance${days ? `?days=${days}` : ""}`),
+  analyticsSkillsDemand: () =>
+    apiFetch<SkillsDemandData>("/analytics/skills-demand"),
+  analyticsPipelineVelocity: (days?: number) =>
+    apiFetch<PipelineVelocityData>(`/analytics/pipeline-velocity${days ? `?days=${days}` : ""}`),
+  // Scorecard templates
+  scorecardTemplates: () =>
+    apiFetch<ScorecardTemplate[]>("/scorecards/templates"),
+  createScorecardTemplate: (data: Record<string, unknown>) =>
+    apiFetch<ScorecardTemplate>("/scorecards/templates", { method: "POST", body: JSON.stringify(data) }),
+  updateScorecardTemplate: (id: number, data: Record<string, unknown>) =>
+    apiFetch<ScorecardTemplate>(`/scorecards/templates/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteScorecardTemplate: (id: number) =>
+    apiFetch<void>(`/scorecards/templates/${id}`, { method: "DELETE" }),
+  // Scorecards
+  scorecards: (params?: { interview_id?: number; evaluator_id?: number }) =>
+    apiFetch<Scorecard[]>(`/scorecards?${toQuery(params)}`),
+  createScorecard: (data: Record<string, unknown>) =>
+    apiFetch<Scorecard>("/scorecards", { method: "POST", body: JSON.stringify(data) }),
+  updateScorecard: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Scorecard>(`/scorecards/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteScorecard: (id: number) =>
+    apiFetch<void>(`/scorecards/${id}`, { method: "DELETE" }),
+  scorecardSummary: (interviewId: number) =>
+    apiFetch<ScorecardSummary>(`/scorecards/summary/${interviewId}`),
+  // SMS
+  sendSms: (to_phone: string, body: string) =>
+    apiFetch<{ ok: boolean }>("/messaging/sms", { method: "POST", body: JSON.stringify({ to_phone, body }) }),
+  // Webhooks
+  webhooks: () => apiFetch<any[]>("/webhooks"),
+  createWebhook: (data: Record<string, unknown>) =>
+    apiFetch<any>("/webhooks", { method: "POST", body: JSON.stringify(data) }),
+  updateWebhook: (id: number, data: Record<string, unknown>) =>
+    apiFetch<any>(`/webhooks/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteWebhook: (id: number) =>
+    apiFetch<{ ok: boolean }>(`/webhooks/${id}`, { method: "DELETE" }),
+  testWebhook: (id: number) =>
+    apiFetch<any>(`/webhooks/${id}/test`, { method: "POST" }),
+  webhookDeliveries: (id: number) =>
+    apiFetch<any[]>(`/webhooks/${id}/deliveries`),
+  webhookEventTypes: () => apiFetch<{ events: string[] }>("/webhooks/event-types"),
+
+  // Offers
+  offers: (params = "") => apiFetch<Offer[]>(`/offers${params}`),
+  createOffer: (data: Record<string, unknown>) =>
+    apiFetch<Offer>("/offers", { method: "POST", body: JSON.stringify(data) }),
+  offer: (id: number) => apiFetch<Offer>(`/offers/${id}`),
+  updateOffer: (id: number, data: Record<string, unknown>) =>
+    apiFetch<Offer>(`/offers/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteOffer: (id: number) =>
+    apiFetch<void>(`/offers/${id}`, { method: "DELETE" }),
+  offerPipeline: () => apiFetch<OfferPipelineColumn[]>("/offers/pipeline"),
+  submitOffer: (id: number) =>
+    apiFetch<Offer>(`/offers/${id}/submit`, { method: "POST" }),
+  approveOffer: (id: number, comments?: string) =>
+    apiFetch<Offer>(`/offers/${id}/approve`, { method: "POST", body: JSON.stringify({ comments }) }),
+  rejectOffer: (id: number, comments?: string) =>
+    apiFetch<Offer>(`/offers/${id}/reject`, { method: "POST", body: JSON.stringify({ comments }) }),
+  sendOffer: (id: number) =>
+    apiFetch<Offer>(`/offers/${id}/send`, { method: "POST" }),
+  acceptOffer: (id: number) =>
+    apiFetch<Offer>(`/offers/${id}/accept`, { method: "POST" }),
+  withdrawOffer: (id: number) =>
+    apiFetch<Offer>(`/offers/${id}/withdraw`, { method: "POST" }),
+  generateOfferLetter: (id: number) =>
+    apiFetch<{ html: string; text: string; title: string }>(`/offers/${id}/letter`),
+  // AI Screening
+  aiScreen: (contract_id: number, seeker_ids?: number[]) =>
+    apiFetch<{ results: ScreeningResult[]; total: number }>("/ai/screen", {
+      method: "POST", body: JSON.stringify({ contract_id, seeker_ids }),
+    }),
+  aiSkillsExtract: (text: string) =>
+    apiFetch<{ skills: string[] }>("/ai/skills-extract", {
+      method: "POST", body: JSON.stringify({ text }),
+    }),
+  aiMarketIntel: (job_title: string, skills: string[], location?: string) =>
+    apiFetch<MarketIntelligence>("/ai/market-intelligence", {
+      method: "POST", body: JSON.stringify({ job_title, skills, location }),
+    }),
+  aiSkillsTaxonomy: () => apiFetch<{ categories: Record<string, string[]>; all_skills: string[]; total_count: number }>("/ai/skills-taxonomy"),
+  aiSkillsGap: (contractId: number, seekerId: number) =>
+    apiFetch<any>(`/ai/skills-gap?contract_id=${contractId}&seeker_id=${seekerId}`, { method: "POST" }),
+
+  // Client Portal
+  clientPortalSessions: (clientId?: number) =>
+    apiFetch<any[]>(`/client-portal/sessions${clientId ? `?client_id=${clientId}` : ""}`),
+  createClientPortalSession: (clientId: number, expiryDays: number) =>
+    apiFetch<any>("/client-portal/sessions", {
+      method: "POST",
+      body: JSON.stringify({ client_id: clientId, expiry_days: expiryDays }),
+    }),
+  clientPortalProfile: (token: string) =>
+    apiFetch<any>(`/client-portal/profile?token=${token}`),
+  clientPortalFeedback: (clientId?: number, status?: string) => {
+    const params = new URLSearchParams();
+    if (clientId) params.set("client_id", String(clientId));
+    if (status) params.set("status", status);
+    const qs = params.toString();
+    return apiFetch<any[]>(`/client-portal/feedback${qs ? `?${qs}` : ""}`);
+  },
+  submitClientFeedback: (token: string, matchId: number, rating: number, feedbackText?: string) =>
+    apiFetch<any>(`/client-portal/feedback?token=${token}`, {
+      method: "POST",
+      body: JSON.stringify({ match_id: matchId, rating, feedback_text: feedbackText }),
+    }),
+  // Campaigns
+  campaigns: (status?: string, channel?: string) => {
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (channel) params.set("channel", channel);
+    const qs = params.toString();
+    return apiFetch<any[]>(`/campaigns${qs ? `?${qs}` : ""}`);
+  },
+  createCampaign: (data: Record<string, unknown>) =>
+    apiFetch<any>("/campaigns", { method: "POST", body: JSON.stringify(data) }),
+  updateCampaign: (id: number, data: Record<string, unknown>) =>
+    apiFetch<any>(`/campaigns/${id}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteCampaign: (id: number) =>
+    apiFetch<void>(`/campaigns/${id}`, { method: "DELETE" }),
+  startCampaign: (id: number) =>
+    apiFetch<any>(`/campaigns/${id}/start`, { method: "POST" }),
+  pauseCampaign: (id: number) =>
+    apiFetch<any>(`/campaigns/${id}/pause`, { method: "POST" }),
+  campaignRecipients: (id: number) =>
+    apiFetch<any[]>(`/campaigns/${id}/recipients`),
+  addCampaignRecipients: (id: number, seekerIds: number[]) =>
+    apiFetch<any[]>(`/campaigns/${id}/recipients/add`, {
+      method: "POST",
+      body: JSON.stringify({ seeker_ids: seekerIds }),
+    }),
+  campaignAnalytics: (id: number) =>
+    apiFetch<any>(`/campaigns/${id}/analytics`),
+
 };

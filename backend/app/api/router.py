@@ -2,9 +2,13 @@ from fastapi import APIRouter
 
 from app.api.v1 import (
     activity,
+    ai_screening,
+    analytics,
     audit_log,
     auth,
     billing,
+    campaigns,
+    client_portal,
     consent,
     contracts,
     dashboard_enhanced,
@@ -18,12 +22,15 @@ from app.api.v1 import (
     messaging,
     notes,
     notifications,
+    offers,
+    scorecards,
     scrapers,
     seekers,
     settings,
     tags,
     team,
     tools,
+    webhooks,
     workflows,
 )
 
@@ -49,6 +56,13 @@ api_router.include_router(notifications.router)
 api_router.include_router(settings.router)
 api_router.include_router(team.router)
 api_router.include_router(dashboard_enhanced.router)
+api_router.include_router(analytics.router)
+api_router.include_router(scorecards.router)
 api_router.include_router(activity.router)
 api_router.include_router(documents.router)
 api_router.include_router(email_compose.router)
+api_router.include_router(webhooks.router)
+api_router.include_router(client_portal.router)
+api_router.include_router(campaigns.router)
+api_router.include_router(ai_screening.router)
+api_router.include_router(offers.router)

@@ -294,3 +294,231 @@ export interface TimelinePoint {
   placed: number;
   rejected: number;
 }
+
+export interface PortalSession {
+  id: number;
+  agency_id: number;
+  client_id: number;
+  token_hash: string;
+  expires_at: string;
+  is_active: boolean;
+  last_accessed_at: string | null;
+  created_at: string;
+  client_name?: string | null;
+  token?: string;
+}
+
+export interface ClientFeedback {
+  id: number;
+  agency_id: number;
+  client_id: number;
+  match_id: number;
+  session_id: number | null;
+  rating: number;
+  feedback_text: string | null;
+  status: string;
+  reviewed_by: number | null;
+  created_at: string;
+  client_name?: string | null;
+  match_seeker_name?: string | null;
+  match_contract_title?: string | null;
+}
+
+export interface Campaign {
+  id: number;
+  agency_id: number;
+  name: string;
+  description: string | null;
+  status: string;
+  channel: string;
+  template_subject: string | null;
+  template_body: string | null;
+  target_count: number;
+  sent_count: number;
+  opened_count: number;
+  replied_count: number;
+  created_at: string;
+}
+
+export interface CampaignRecipient {
+  id: number;
+  agency_id: number;
+  campaign_id: number;
+  seeker_id: number;
+  status: string;
+  sent_at: string | null;
+  opened_at: string | null;
+  replied_at: string | null;
+  response_text: string | null;
+  created_at: string;
+  seeker_name: string | null;
+  seeker_email: string | null;
+}
+
+export interface FunnelStage {
+  name: string;
+  count: number;
+}
+
+export interface FunnelData {
+  stages: FunnelStage[];
+  period_days: number;
+}
+
+export interface TimeToFillData {
+  avg_days: number;
+  by_contract: Record<string, number>;
+  by_skill: Record<string, number>;
+  count: number;
+  period_days: number;
+}
+
+export interface SourceROIEntry {
+  source: string;
+  total_candidates: number;
+  hires: number;
+  conversion_rate: number;
+}
+
+export interface SourceROIData {
+  sources: SourceROIEntry[];
+  period_days: number;
+}
+
+export interface RevenueData {
+  total_placements: number;
+  avg_bill_rate: number;
+  total_revenue_est: number;
+  monthly_trend: { month: string; placements: number; revenue: number }[];
+  period_days: number;
+}
+
+export interface ConsultantPerfEntry {
+  recruiter: string;
+  interviews: number;
+  avg_rating: number;
+  placements: number;
+}
+
+export interface ConsultantPerformanceData {
+  performance: ConsultantPerfEntry[];
+  period_days: number;
+}
+
+export interface SkillsDemandEntry {
+  skill: string;
+  demand: number;
+  supply: number;
+  gap: number;
+  status: string;
+}
+
+export interface SkillsDemandData {
+  skills: SkillsDemandEntry[];
+}
+
+export interface PipelineStageEntry {
+  stage: string;
+  avg_days: number;
+  count: number;
+}
+
+export interface PipelineVelocityData {
+  stages: PipelineStageEntry[];
+  bottleneck: string | null;
+  period_days: number;
+}
+
+export interface ScorecardTemplate {
+  id: number;
+  agency_id: number;
+  name: string;
+  criteria: { name: string; weight: number; description: string; scale_max: number }[];
+  is_default: boolean;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface Scorecard {
+  id: number;
+  agency_id: number;
+  interview_id: number;
+  template_id: number;
+  evaluator_id: number;
+  scores: { criterion: string; score: number; notes: string }[];
+  overall_score: number;
+  recommendation: string | null;
+  notes: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface ScorecardSummary {
+  interview_id: number;
+  total_scorecards: number;
+  avg_overall: number;
+  recommendations: Record<string, number>;
+  criterion_averages: { criterion: string; avg_score: number; count: number }[];
+}
+
+export interface Offer {
+  id: number;
+  agency_id: number;
+  contract_id: number;
+  seeker_id: number;
+  match_id?: number | null;
+  status: string;
+  offered_salary?: number | null;
+  offered_currency: string;
+  start_date?: string | null;
+  offer_expiry?: string | null;
+  terms?: string | null;
+  notes?: string | null;
+  approved_by?: number | null;
+  approved_at?: string | null;
+  sent_at?: string | null;
+  responded_at?: string | null;
+  created_at: string;
+  contract_title?: string | null;
+  seeker_name?: string | null;
+  approvals: OfferApproval[];
+}
+
+export interface OfferApproval {
+  id: number;
+  offer_id: number;
+  approver_id: number;
+  status: string;
+  comments?: string | null;
+  decided_at?: string | null;
+  created_at: string;
+  approver_name?: string | null;
+}
+
+export interface OfferPipelineColumn {
+  status: string;
+  label: string;
+  offers: Offer[];
+}
+
+export interface ScreeningResult {
+  seeker_id: number;
+  seeker_name?: string | null;
+  seeker_headline?: string | null;
+  seeker_skills: string[];
+  overall_score: number;
+  skill_coverage: number;
+  matched_skills: string[];
+  missing_skills: string[];
+  extra_skills: string[];
+  tier: string;
+}
+
+export interface MarketIntelligence {
+  salary_range: { min: number; max: number; median: number; currency: string };
+  demand_level: string;
+  competition_level: string;
+  top_locations: string[];
+  trending_skills: string[];
+  market_notes: string;
+}

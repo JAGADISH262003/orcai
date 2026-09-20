@@ -47,11 +47,11 @@ export default function ToolsPage() {
   async function handleArtifact(type: string) {
     setLoading(true); setError(null);
     try {
-      let data;
+      let data: { content: string; filename: string } | undefined;
       if (type === "mis") data = await api.misReport();
       else if (type === "hotlist") data = await api.hotlist();
-      else if (type === "offer-letter") data = await api.offerLetter({ candidate_name: candidateName, position_title: positionTitle, company_name: companyName, start_date: startDate, salary, location });
-      if (data) setResult(data.content);
+      else if (type === "offer-letter") data = await api.artifactOfferLetter({ candidate_name: candidateName, position_title: positionTitle, company_name: companyName, start_date: startDate, salary, location });
+      if (data && "content" in data) setResult(data.content);
     } catch (e) { setError(e instanceof Error ? e.message : "Generation failed"); }
     finally { setLoading(false); }
   }

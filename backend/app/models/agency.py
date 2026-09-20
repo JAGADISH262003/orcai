@@ -11,7 +11,9 @@ if TYPE_CHECKING:
     from app.models.activity import Activity
     from app.models.agency_settings import AgencySettings
     from app.models.audit import AuditLog
+    from app.models.campaign import Campaign
     from app.models.client import Client
+    from app.models.client_portal import ClientFeedback, ClientPortalSession
     from app.models.consent import ConsentRecord
     from app.models.contract import Contract
     from app.models.document import Document
@@ -22,10 +24,13 @@ if TYPE_CHECKING:
     from app.models.match import Match
     from app.models.note import Note
     from app.models.notification import Notification
+    from app.models.offer import Offer
+    from app.models.scorecard import Scorecard, ScorecardTemplate
     from app.models.seeker import Seeker
     from app.models.subscription import Subscription
     from app.models.tag import Tag
     from app.models.user import User
+    from app.models.webhook import Webhook
 
 
 class Agency(Base, TimestampMixin):
@@ -59,6 +64,19 @@ class Agency(Base, TimestampMixin):
     settings_rel: Mapped[list["AgencySettings"]] = relationship(back_populates="agency")
     activities: Mapped[list["Activity"]] = relationship(back_populates="agency")
     documents: Mapped[list["Document"]] = relationship(back_populates="agency")
+    offers: Mapped[list["Offer"]] = relationship(back_populates="agency")
+    portal_sessions: Mapped[list["ClientPortalSession"]] = relationship(
+        "ClientPortalSession", back_populates="agency"
+    )
+    client_feedbacks: Mapped[list["ClientFeedback"]] = relationship(
+        "ClientFeedback", back_populates="agency"
+    )
+    campaigns: Mapped[list["Campaign"]] = relationship(
+        "Campaign", back_populates="agency"
+    )
+    scorecard_templates: Mapped[list["ScorecardTemplate"]] = relationship(back_populates="agency")
+    scorecards: Mapped[list["Scorecard"]] = relationship(back_populates="agency")
+    webhooks: Mapped[list["Webhook"]] = relationship(back_populates="agency")
 
     def ensure_workflow_config(self) -> dict[str, Any]:
         """Return the tenant's workflow blueprint, materialising it if unset."""

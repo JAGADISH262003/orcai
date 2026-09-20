@@ -2,53 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Theme Variables ────────────────────────────────────────────────────── */
 :root {
   color-scheme: dark;
   font-feature-settings: "cv01", "ss03";
+
+  --bg-page: #08090a;
+  --bg-surface: #0f1011;
+  --bg-card: rgba(255, 255, 255, 0.02);
+  --bg-card-hover: rgba(255, 255, 255, 0.03);
+  --bg-input: rgba(255, 255, 255, 0.02);
+  --bg-input-focus: #191a1b;
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-muted: #8a8f98;
+  --text-dim: #62666d;
+  --accent: #5e6ad2;
+  --accent-light: #7c87e0;
+  --accent-hover: #4e5ac0;
+  --accent-bg: rgba(94, 106, 210, 0.2);
+  --scrollbar-track: #08090a;
+  --scrollbar-thumb: #23252a;
+  --header-bg: #0f1011;
+  --sidebar-bg: #0f1011;
+  --overlay-bg: rgba(0, 0, 0, 0.8);
 }
 
+.light {
+  color-scheme: light;
+
+  --bg-page: #f5f5f7;
+  --bg-surface: #ffffff;
+  --bg-card: rgba(0, 0, 0, 0.02);
+  --bg-card-hover: rgba(0, 0, 0, 0.04);
+  --bg-input: rgba(0, 0, 0, 0.03);
+  --bg-input-focus: #ffffff;
+  --border-default: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.15);
+  --text-primary: #1a1a1a;
+  --text-secondary: #3c3c43;
+  --text-muted: #6e6e73;
+  --text-dim: #aeaeb2;
+  --accent: #5e6ad2;
+  --accent-light: #7c87e0;
+  --accent-hover: #4e5ac0;
+  --accent-bg: rgba(94, 106, 210, 0.12);
+  --scrollbar-track: #f5f5f7;
+  --scrollbar-thumb: #d1d1d6;
+  --header-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
 body {
-  background-color: #08090a;
-  color: #f7f8f8;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   font-family: "Inter", system-ui, sans-serif;
 }
 
+/* ── Card ───────────────────────────────────────────────────────────────── */
 .linear-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
   border-radius: 8px;
 }
 
 .linear-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border-hover);
+  background: var(--bg-card-hover);
 }
 
+/* ── Input ──────────────────────────────────────────────────────────────── */
 .linear-input {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #d0d6e0;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
   border-radius: 6px;
 }
 
 .linear-input:focus {
   outline: none;
-  border-color: #5e6ad2;
+  border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2);
 }
 
 select.linear-input {
-  background-color: #191a1b;
+  background-color: var(--bg-input-focus);
 }
 
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090a;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #23252a;
+  background: var(--scrollbar-thumb);
   border-radius: 3px;
 }
+
+/* ── Toast animations ───────────────────────────────────────────────────── */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(8px) scale(0.96); }
+}
+.toast-enter { animation: toast-in 0.2s ease-out; }
+.toast-exit { animation: toast-out 0.2s ease-in forwards; }
+
+/* ── Command palette ────────────────────────────────────────────────────── */
+@keyframes cmd-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes cmd-panel-in {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cmd-overlay { animation: cmd-overlay-in 0.15s ease-out; }
+.cmd-panel { animation: cmd-panel-in 0.15s ease-out; }
+
+/* ── Mobile sidebar slide ───────────────────────────────────────────────── */
+@keyframes sidebar-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes sidebar-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.sidebar-enter { animation: sidebar-in 0.2s ease-out; }

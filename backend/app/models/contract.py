@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models.agency import Agency
     from app.models.client import Client
     from app.models.match import Match
+    from app.models.offer import Offer
 
 
 class Contract(Base, TimestampMixin):
@@ -42,3 +43,4 @@ class Contract(Base, TimestampMixin):
     agency: Mapped["Agency"] = relationship(back_populates="contracts")
     client: Mapped[Optional["Client"]] = relationship(back_populates="contracts")
     matches: Mapped[list["Match"]] = relationship(back_populates="contract", cascade="all, delete-orphan")
+    offers: Mapped[list["Offer"]] = relationship(back_populates="contract", cascade="all, delete-orphan")

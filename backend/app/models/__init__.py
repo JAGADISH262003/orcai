@@ -3,7 +3,9 @@ from app.models.activity import Activity
 from app.models.agency import Agency
 from app.models.agency_settings import AgencySettings
 from app.models.audit import AuditLog
+from app.models.campaign import Campaign, CampaignRecipient
 from app.models.client import Client
+from app.models.client_portal import ClientFeedback, ClientPortalSession
 from app.models.consent import ConsentRecord
 from app.models.contract import Contract
 from app.models.document import Document
@@ -14,12 +16,15 @@ from app.models.job import Job
 from app.models.match import Match
 from app.models.note import Note
 from app.models.notification import Notification
+from app.models.offer import Offer, OfferApproval
 from app.models.refresh_token import RefreshToken
+from app.models.scorecard import Scorecard, ScorecardTemplate
 from app.models.seeker import Seeker
 from app.models.seeker_tag import SeekerTag
 from app.models.subscription import Subscription
 from app.models.tag import Tag
 from app.models.user import User
+from app.models.webhook import Webhook, WebhookDelivery
 
 __all__ = [
     "Activity",
@@ -27,7 +32,11 @@ __all__ = [
     "AgencySettings",
     "AuditLog",
     "Base",
+    "Campaign",
+    "CampaignRecipient",
     "Client",
+    "ClientFeedback",
+    "ClientPortalSession",
     "ConsentRecord",
     "Contract",
     "Document",
@@ -39,9 +48,15 @@ __all__ = [
     "Notification",
     "Note",
     "RefreshToken",
+    "Scorecard",
+    "ScorecardTemplate",
     "Seeker",
     "SeekerTag",
     "Subscription",
     "Tag",
+    "Offer",
+    "OfferApproval",
     "User",
+    "Webhook",
+    "WebhookDelivery",
 ]
