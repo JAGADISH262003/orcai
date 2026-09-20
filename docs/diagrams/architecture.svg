@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1350" width="1100" height="1350">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#5e6ad2"/>
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#8a8f98"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="1350" fill="#08090a" rx="12"/>
+
+  <!-- Title -->
+  <text x="550" y="45" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="700" fill="#f7f8f8">ORCAI Platform — System Architecture</text>
+  <line x1="200" y1="60" x2="900" y2="60" stroke="#232428" stroke-width="1"/>
+
+  <!-- ==================== LAYER 1: CLIENT ==================== -->
+  <rect x="30" y="80" width="1040" height="130" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="110" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">CLIENT LAYER</text>
+
+  <!-- Browser -->
+  <rect x="80" y="125" width="260" height="70" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="210" y="152" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">Browser</text>
+  <text x="210" y="172" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">Next.js 15 SPA</text>
+
+  <!-- Mobile -->
+  <rect x="420" y="125" width="260" height="70" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="550" y="152" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">Mobile</text>
+  <text x="550" y="172" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">Responsive Web</text>
+
+  <!-- Messaging -->
+  <rect x="760" y="125" width="280" height="70" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="900" y="152" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">Messaging Clients</text>
+  <text x="900" y="172" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">WhatsApp / Telegram</text>
+
+  <!-- Arrow down -->
+  <line x1="550" y1="210" x2="550" y2="245" stroke="#5e6ad2" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- ==================== LAYER 2: API GATEWAY ==================== -->
+  <rect x="30" y="250" width="1040" height="130" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="280" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">API GATEWAY</text>
+
+  <!-- Next.js BFF -->
+  <rect x="120" y="295" width="340" height="70" rx="8" fill="#161719" stroke="#5e6ad2" stroke-width="1.5"/>
+  <text x="290" y="322" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">Next.js BFF</text>
+  <text x="290" y="342" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">Auth Proxy · SSR · Session Mgmt</text>
+
+  <!-- Arrow between gateway boxes -->
+  <line x1="460" y1="330" x2="560" y2="330" stroke="#5e6ad2" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <text x="510" y="320" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">REST</text>
+
+  <!-- FastAPI -->
+  <rect x="565" y="295" width="340" height="70" rx="8" fill="#161719" stroke="#5e6ad2" stroke-width="1.5"/>
+  <text x="735" y="322" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">FastAPI</text>
+  <text x="735" y="342" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">REST API · WebSocket · Background Tasks</text>
+
+  <!-- Arrow down -->
+  <line x1="550" y1="380" x2="550" y2="415" stroke="#5e6ad2" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- ==================== LAYER 3: APPLICATION ==================== -->
+  <rect x="30" y="420" width="1040" height="160" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="450" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">APPLICATION LAYER</text>
+
+  <!-- Auth -->
+  <rect x="55" y="465" width="170" height="85" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="140" y="492" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#f7f8f8">Auth</text>
+  <text x="140" y="510" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">JWT Tokens</text>
+  <text x="140" y="525" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">OAuth 2.0</text>
+
+  <!-- RBAC -->
+  <rect x="245" y="465" width="170" height="85" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="330" y="492" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#f7f8f8">RBAC</text>
+  <text x="330" y="510" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">4 Roles</text>
+  <text x="330" y="525" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Permission Matrix</text>
+
+  <!-- AI Engine -->
+  <rect x="435" y="465" width="200" height="85" rx="8" fill="#161719" stroke="#10b981" stroke-width="1.5"/>
+  <text x="535" y="492" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#10b981">AI Engine</text>
+  <text x="535" y="510" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Gemini · OpenAI</text>
+  <text x="535" y="525" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Fallback Chain</text>
+
+  <!-- Matching Engine -->
+  <rect x="655" y="465" width="180" height="85" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="745" y="492" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#f7f8f8">Matching Engine</text>
+  <text x="745" y="510" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Skill Matching</text>
+  <text x="745" y="525" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Score Ranking</text>
+
+  <!-- Workflow Engine -->
+  <rect x="855" y="465" width="195" height="85" rx="8" fill="#161719" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="952" y="492" text-anchor="middle" font-family="system-ui, sans-serif" font-size="13" font-weight="600" fill="#f59e0b">Workflow Engine</text>
+  <text x="952" y="510" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">6 Blueprints</text>
+  <text x="952" y="525" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">State Machine</text>
+
+  <!-- Arrow down -->
+  <line x1="550" y1="580" x2="550" y2="615" stroke="#5e6ad2" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- ==================== LAYER 4: SERVICES ==================== -->
+  <rect x="30" y="620" width="1040" height="160" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="650" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">SERVICES LAYER</text>
+
+  <!-- Email -->
+  <rect x="45" y="665" width="145" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="117" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">Email</text>
+  <text x="117" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">SMTP</text>
+  <text x="117" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Templates</text>
+  <text x="117" y="740" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Tracking</text>
+
+  <!-- WhatsApp -->
+  <rect x="210" y="665" width="165" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="292" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">WhatsApp</text>
+  <text x="292" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Cloud API v18</text>
+  <text x="292" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Templates</text>
+  <text x="292" y="740" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Media</text>
+
+  <!-- Telegram -->
+  <rect x="395" y="665" width="145" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="467" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">Telegram</text>
+  <text x="467" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Bot API</text>
+  <text x="467" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Webhooks</text>
+
+  <!-- Billing -->
+  <rect x="560" y="665" width="165" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="642" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">Billing</text>
+  <text x="642" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Stripe</text>
+  <text x="642" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Razorpay</text>
+  <text x="642" y="740" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Subscriptions</text>
+
+  <!-- Scrapers -->
+  <rect x="745" y="665" width="145" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="817" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">Scrapers</text>
+  <text x="817" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">5 Sources</text>
+  <text x="817" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Scheduled</text>
+
+  <!-- Enrichment -->
+  <rect x="910" y="665" width="145" height="95" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="982" y="692" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#f7f8f8">Enrichment</text>
+  <text x="982" y="710" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Apollo</text>
+  <text x="982" y="725" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">PDL · Hunter</text>
+
+  <!-- Arrow down -->
+  <line x1="550" y1="780" x2="550" y2="815" stroke="#5e6ad2" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+  <!-- ==================== LAYER 5: DATA ==================== -->
+  <rect x="30" y="820" width="1040" height="130" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="850" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">DATA LAYER</text>
+
+  <!-- PostgreSQL -->
+  <rect x="100" y="865" width="300" height="70" rx="8" fill="#161719" stroke="#5e6ad2" stroke-width="1.5"/>
+  <text x="250" y="892" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">PostgreSQL</text>
+  <text x="250" y="912" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">21 Tables · Migrations · Indexes</text>
+
+  <!-- File Storage -->
+  <rect x="430" y="865" width="260" height="70" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="560" y="892" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">File Storage</text>
+  <text x="560" y="912" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">Resumes · Documents</text>
+
+  <!-- Audit Log -->
+  <rect x="720" y="865" width="280" height="70" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="860" y="892" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#f7f8f8">Audit Log</text>
+  <text x="860" y="912" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">Immutable · Timestamped</text>
+
+  <!-- Arrow down -->
+  <line x1="550" y1="950" x2="550" y2="985" stroke="#8a8f98" stroke-width="1.5" stroke-dasharray="6,4" marker-end="url(#arrowGray)"/>
+
+  <!-- ==================== LAYER 6: EXTERNAL ==================== -->
+  <rect x="30" y="990" width="1040" height="120" rx="10" fill="#0f1011" stroke="#232428" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="60" y="1020" font-family="system-ui, sans-serif" font-size="13" font-weight="700" fill="#5e6ad2" letter-spacing="1.5">EXTERNAL INTEGRATIONS</text>
+
+  <rect x="60" y="1035" width="185" height="55" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="152" y="1060" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#f7f8f8">Google Search API</text>
+  <text x="152" y="1078" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">CSE · SERP</text>
+
+  <rect x="265" y="1035" width="155" height="55" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="342" y="1060" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#f7f8f8">Indeed</text>
+  <text x="342" y="1078" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Job Feed</text>
+
+  <rect x="440" y="1035" width="155" height="55" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="517" y="1060" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#f7f8f8">Naukri</text>
+  <text x="517" y="1078" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Job Feed</text>
+
+  <rect x="615" y="1035" width="165" height="55" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="697" y="1060" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#f7f8f8">GitHub API</text>
+  <text x="697" y="1078" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Repos · Profiles</text>
+
+  <rect x="800" y="1035" width="155" height="55" rx="8" fill="#161719" stroke="#232428" stroke-width="1"/>
+  <text x="877" y="1060" text-anchor="middle" font-family="system-ui, sans-serif" font-size="12" font-weight="500" fill="#f7f8f8">Hunter.io</text>
+  <text x="877" y="1078" text-anchor="middle" font-family="system-ui, sans-serif" font-size="10" fill="#8a8f98">Email Finder</text>
+
+  <!-- Footer -->
+  <text x="550" y="1145" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#8a8f98">ORCAI Platform Architecture — Confidential</text>
+</svg>

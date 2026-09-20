@@ -323,4 +323,32 @@ export const api = {
   team: () => apiFetch<TeamMember[]>("/auth/users"),
   dashboardEnhanced: () => apiFetch<EnhancedDashboard>("/billing/dashboard/enhanced"),
   dashboardTimeline: (days?: number) => apiFetch<TimelinePoint[]>(`/billing/dashboard/timeline${days ? `?days=${days}` : ""}`),
+  // Email
+  emailSend: (data: {
+    to_email: string;
+    subject: string;
+    body_html: string;
+    body_text?: string;
+    template_name?: string;
+    template_vars?: Record<string, string>;
+    related_entity_type?: string;
+    related_entity_id?: number;
+  }) => apiFetch<any>("/email/send", { method: "POST", body: JSON.stringify(data) }),
+  emailHistory: (params?: { status?: string; limit?: number; offset?: number }) =>
+    apiFetch<any[]>(`/email/history?${toQuery(params)}`),
+  emailTemplates: () => apiFetch<any[]>("/email/templates"),
+  emailPreview: (data: {
+    subject: string;
+    body_html: string;
+    template_name?: string;
+    template_vars?: Record<string, string>;
+  }) => apiFetch<{ html: string }>("/email/preview", { method: "POST", body: JSON.stringify(data) }),
+  // Activity
+  activityLog: (params?: {
+    entity_type?: string;
+    entity_id?: number;
+    action?: string;
+    limit?: number;
+    offset?: number;
+  }) => apiFetch<any[]>(`/activity?${toQuery(params)}`),
 };

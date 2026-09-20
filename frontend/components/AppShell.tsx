@@ -30,6 +30,8 @@ const NAV: Array<{ href: string; label: string; icon: string; perm?: string }> =
   { href: "/tools", label: "Tools & Compliance", icon: "🛠", perm: "settings.write" },
   { href: "/audit", label: "Audit Log", icon: "📋", perm: "settings.write" },
   { href: "/dpdpa", label: "DPDPA Consent Ledger", icon: "⚖", perm: "settings.write" },
+  { href: "/email", label: "Email", icon: "✉" },
+  { href: "/activity", label: "Activity", icon: "📊" },
   { href: "/notifications", label: "Notifications", icon: "🔔" },
   { href: "/team", label: "Team", icon: "👥", perm: "teams.manage" },
   { href: "/settings", label: "Settings", icon: "⚙", perm: "settings.write" },

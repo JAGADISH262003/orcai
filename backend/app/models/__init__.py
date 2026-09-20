@@ -1,10 +1,12 @@
 from app.core.database import Base
+from app.models.activity import Activity
 from app.models.agency import Agency
 from app.models.agency_settings import AgencySettings
 from app.models.audit import AuditLog
 from app.models.client import Client
 from app.models.consent import ConsentRecord
 from app.models.contract import Contract
+from app.models.document import Document
 from app.models.email_message import EmailMessage
 from app.models.inbound import InboundMessage
 from app.models.interview import Interview
@@ -20,6 +22,7 @@ from app.models.tag import Tag
 from app.models.user import User
 
 __all__ = [
+    "Activity",
     "Agency",
     "AgencySettings",
     "AuditLog",
@@ -27,6 +30,7 @@ __all__ = [
     "Client",
     "ConsentRecord",
     "Contract",
+    "Document",
     "EmailMessage",
     "InboundMessage",
     "Interview",

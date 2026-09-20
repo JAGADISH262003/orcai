@@ -8,11 +8,13 @@ from app.core.workflows import DEFAULT_WORKFLOW, workflow_config
 from app.models.mixins import TimestampMixin
 
 if TYPE_CHECKING:
+    from app.models.activity import Activity
     from app.models.agency_settings import AgencySettings
     from app.models.audit import AuditLog
     from app.models.client import Client
     from app.models.consent import ConsentRecord
     from app.models.contract import Contract
+    from app.models.document import Document
     from app.models.email_message import EmailMessage
     from app.models.inbound import InboundMessage
     from app.models.interview import Interview
@@ -55,6 +57,8 @@ class Agency(Base, TimestampMixin):
     tags: Mapped[list["Tag"]] = relationship(back_populates="agency")
     notifications: Mapped[list["Notification"]] = relationship(back_populates="agency")
     settings_rel: Mapped[list["AgencySettings"]] = relationship(back_populates="agency")
+    activities: Mapped[list["Activity"]] = relationship(back_populates="agency")
+    documents: Mapped[list["Document"]] = relationship(back_populates="agency")
 
     def ensure_workflow_config(self) -> dict[str, Any]:
         """Return the tenant's workflow blueprint, materialising it if unset."""
